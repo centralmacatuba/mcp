@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [feat/mcp-server]
   pull_request:
     branches: [principal]
   workflow_dispatch:
@@ -71,4 +73,24 @@ jobs:
           node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.dependencies['@centralmacatuba/api']='^0.1.0';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
 
       - name: Validate npm package contents
-        run: npm pack --dry-run --ignore-scripts
+        run: |
+          npm pack --dry-run --ignore-scripts --json > npm-pack.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const [pack] = JSON.parse(fs.readFileSync("npm-pack.json", "utf8"));
+          const files = new Set(pack.files.map(({ path }) => path));
+          const required = [
+            "dist/index.js", "dist/index.d.ts",
+            "dist/http.js", "dist/http.d.ts",
+            "dist/stdio.js", "dist/stdio.d.ts",
+            "dist/cli.js",
+            ...["tempo", "servicos", "mapa", "jornal", "informacoes", "cursos", "sos"].map((name) => "dist/apps/" + name + ".html"),
+            "README.md", "LICENSE"
+          ];
+          const missing = required.filter((path) => !files.has(path));
+          if (missing.length) {
+            console.error("Arquivos ausentes no pacote npm: " + missing.join(", "));
+            process.exit(1);
+          }
+          console.log("Pacote validado: " + files.size + " arquivos.");
+          NODE
