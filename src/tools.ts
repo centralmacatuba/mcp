@@ -139,6 +139,7 @@ const tools: ToolDefinition[] = [
 ];
 
 
+/** Converts a validated calendar PDF/PNG Blob into MCP resource content. */
 export async function createCalendarFileContent(blob: Blob, ano?: number) {
   const mimeType = blob.type.split(";")[0]?.trim().toLowerCase();
   if (mimeType !== "application/pdf" && mimeType !== "image/png") {
@@ -170,10 +171,12 @@ export async function createCalendarFileContent(blob: Blob, ano?: number) {
     : [resource];
 }
 
+/** Serializes tool results consistently, converting bigint values to strings. */
 function jsonText(value: unknown): string {
   return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : item, 2) ?? String(value);
 }
 
+/** Registers the read-only API tool allowlist with schema validation and bounded responses. */
 export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): void {
   for (const definition of tools) {
     const handler = async (rawArgs: unknown) => {
