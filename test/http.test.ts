@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   handleRequest: vi.fn(),
   closeTransport: vi.fn(),
   closeMcp: vi.fn(),
+  closeHttp: vi.fn(),
   transportOptions: undefined as unknown
 }));
 
@@ -22,7 +23,7 @@ vi.mock("node:http", () => ({
     return {
       once: vi.fn(),
       listen: mocks.listen,
-      close: vi.fn()
+      close: mocks.closeHttp
     };
   }
 }));
@@ -66,6 +67,7 @@ describe("HTTP transport request guards", () => {
     mocks.handleRequest.mockResolvedValue(undefined);
     mocks.closeTransport.mockResolvedValue(undefined);
     mocks.closeMcp.mockResolvedValue(undefined);
+    mocks.closeHttp.mockImplementation((_callback?: (error?: Error) => void) => _callback?.());
     signals = new Map((["SIGINT", "SIGTERM"] as const).map((signal) => [signal, process.listeners(signal)]));
     await startHttpServer();
   });
@@ -119,6 +121,16 @@ describe("HTTP transport request guards", () => {
     expect(mocks.closeMcp).toHaveBeenCalledOnce();
   });
 
+  it("handles concurrent requests with isolated transports and servers", async () => {
+    const [first, second] = await Promise.all([send(), send()]);
+    expect(mocks.connect).toHaveBeenCalledTimes(2);
+    expect(mocks.handleRequest).toHaveBeenCalledTimes(2);
+    first.response.emit("close");
+    second.response.emit("close");
+    expect(mocks.closeTransport).toHaveBeenCalledTimes(2);
+    expect(mocks.closeMcp).toHaveBeenCalledTimes(2);
+  });
+
   it("accepts any host when the wildcard is configured", async () => {
     mocks.config.allowedHosts = new Set(["*"]);
     await send({ headers: { host: "example.test" } });
@@ -145,5 +157,38 @@ describe("HTTP transport request guards", () => {
     expect(response.body).toBeUndefined();
     expect(mocks.closeTransport).toHaveBeenCalledOnce();
     expect(mocks.closeMcp).toHaveBeenCalledOnce();
+  });
+});
+
+
+describe("HTTP transport startup and shutdown", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.listen.mockImplementation((_port, _host, callback) => callback());
+    mocks.closeHttp.mockImplementation((callback?: (error?: Error) => void) => callback?.());
+  });
+
+  it("rejects when the HTTP listener cannot start", async () => {
+    const startupError = Object.assign(new Error("address already in use"), { code: "EADDRINUSE" });
+    mocks.listen.mockImplementationOnce(() => { throw startupError; });
+    await expect(startHttpServer()).rejects.toBe(startupError);
+  });
+
+  it.each(["SIGINT", "SIGTERM"] as const)("closes the listener on %s", async (signal) => {
+    const originalListeners = process.listeners(signal);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => undefined) as never);
+    try {
+      await startHttpServer();
+      const handler = process.listeners(signal).find((listener) => !originalListeners.includes(listener));
+      expect(handler).toBeDefined();
+      handler?.();
+      expect(mocks.closeHttp).toHaveBeenCalledOnce();
+      expect(exitSpy).toHaveBeenCalledWith(0);
+    } finally {
+      for (const listener of process.listeners(signal)) {
+        if (!originalListeners.includes(listener)) process.removeListener(signal, listener);
+      }
+      exitSpy.mockRestore();
+    }
   });
 });
