@@ -62,8 +62,11 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Verify MCP App bundle
-        run: test -s dist/apps/tempo.html
+      - name: Verify MCP App bundles
+        run: |
+          for app in tempo servicos mapa jornal informacoes cursos sos; do
+            test -s "dist/apps/$app.html"
+          done
 
       - name: Restore published dependency metadata
         run: |
