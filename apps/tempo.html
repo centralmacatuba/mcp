@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Tempo Macatuba</title>
+    <style>
+      :root { font-family: system-ui, sans-serif; color-scheme: light dark; }
+      body { margin: 0; padding: 1rem; }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+      h1 { margin: 0; font-size: 1.2rem; }
+      p { color: color-mix(in srgb, currentColor 70%, transparent); }
+      button { border: 0; border-radius: .6rem; padding: .65rem 1rem; font: inherit; cursor: pointer; background: #d00; color: white; }
+      pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 1rem; border-radius: .7rem; background: color-mix(in srgb, currentColor 7%, transparent); }
+      #status { min-height: 1.5rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Tempo Macatuba</h1>
+      <button id="refresh" type="button">Atualizar</button>
+    </header>
+    <p id="status" role="status">Aguardando dados do servidor MCP…</p>
+    <pre id="result" aria-live="polite">O resultado da consulta aparecerá aqui.</pre>
+    <script type="module" src="/src/apps/tempo.ts"></script>
+  </body>
+</html>
