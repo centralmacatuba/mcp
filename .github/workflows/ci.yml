@@ -87,25 +87,25 @@ jobs:
             }
 
             const html = fs.readFileSync(path, "utf8");
-            const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
-            const styles = [...html.matchAll(/<style\\b[^>]*>([\\s\\S]*?)<\\/style>/gi)];
+            const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+            const styles = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)];
 
             if (!/^<!doctype html>/i.test(html.trimStart())) failures.push(`${path}: doctype ausente`);
             if (!html.includes("data-mcp-app")) failures.push(`${path}: marcador MCP App ausente`);
             if (!html.includes("data-tool=")) failures.push(`${path}: ferramenta vinculada ausente`);
-            if (!scripts.length || scripts.every(([, attrs, body]) => /\\bsrc\\s*=/i.test(attrs) || !body.trim())) {
+            if (!scripts.length || scripts.every(([, attrs, body]) => /\bsrc\s*=/i.test(attrs) || !body.trim())) {
               failures.push(`${path}: JavaScript não foi incorporado ao HTML`);
             }
             if (!styles.length || styles.every(([, body]) => !body.trim())) {
               failures.push(`${path}: CSS não foi incorporado ao HTML`);
             }
-            if (/<(?:script|link)\\b[^>]*(?:src|href)=["']\\/(?:src|assets)\\//i.test(html)) {
+            if (/<(?:script|link)\b[^>]*(?:src|href)=["']\/(?:src|assets)\//i.test(html)) {
               failures.push(`${path}: dependência local externa permaneceu no HTML`);
             }
           }
 
           if (failures.length) {
-            console.error(failures.join("\\n"));
+            console.error(failures.join("\n"));
             process.exit(1);
           }
           console.log(`Os ${apps.length} MCP Apps possuem HTML, JavaScript e CSS incorporados.`);
