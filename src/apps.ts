@@ -20,6 +20,9 @@ export type AppResourceUri = (typeof APP_RESOURCES)[number]["uri"];
  * Only missing-file errors trigger the fallback; permission and I/O errors remain visible.
  */
 export async function readAppHtml(file: string): Promise<string> {
+  if (!APP_RESOURCES.some((resource) => resource.file === file)) {
+    throw new Error(`MCP App HTML "${file}" não pertence à lista de recursos permitidos.`);
+  }
   const isBuilt = fileURLToPath(import.meta.url).split(/[\\/]/).includes("dist");
   const relativePaths = isBuilt ? [`./apps/${file}`, `../apps/${file}`] : [`../apps/${file}`, `./apps/${file}`];
   let missingError: NodeJS.ErrnoException | undefined;
