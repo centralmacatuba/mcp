@@ -25,6 +25,7 @@ Este pacote não implementa uma segunda camada HTTP para os endpoints de dados. 
 
 - Node.js 20 ou superior.
 - pnpm 12.12.1 para desenvolvimento.
+- MCP TypeScript SDK v2 (`@modelcontextprotocol/server` e `@modelcontextprotocol/node`).
 - SDK `@centralmacatuba/api` compatível com `^0.1.0`.
 
 Após a publicação dos dois pacotes:
@@ -73,7 +74,7 @@ Ferramentas com parâmetros recebem um objeto `query`. O servidor não aceita UR
 
 ## MCP Apps
 
-MCP Apps permanece uma etapa de integração separada, alinhada à issue [centralmacatuba/site#7](https://github.com/centralmacatuba/site/issues/7). Esta base não anuncia recursos de UI nem declara suporte a Apps até que o SDK/bridge oficial e os recursos correspondentes estejam implementados e testados. As ferramentas MCP básicas não dependerão de suporte a Apps no cliente.
+A primeira integração usa o SDK oficial `@modelcontextprotocol/ext-apps` e associa a ferramenta `tempo.listar` ao recurso `ui://centralmacatuba/tempo.html`. Clientes compatíveis recebem um painel interativo com atualização sob demanda; clientes sem suporte a Apps continuam recebendo a resposta textual normal da ferramenta. A interface é empacotada em um único HTML durante o build. A integração pode ser ampliada para outras ferramentas conforme a iniciativa [centralmacatuba/site#7](https://github.com/centralmacatuba/site/issues/7).
 
 ## Transporte e migração
 
@@ -91,7 +92,7 @@ pnpm test
 pnpm build
 ```
 
-A CI usa pnpm 12.12.1. O lockfile será versionado assim que a resolução das dependências puder ser executada com o SDK público disponível.
+A CI usa pnpm 12.12.1. O lockfile será versionado assim que a resolução das dependências puder ser executada com o SDK público disponível. O build compila o servidor e empacota a interface MCP App em `dist/apps/tempo.html`.
 
 ## Projeto e licença
 
