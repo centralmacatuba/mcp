@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/server";
+import type { McpServer } from "@modelcontextprotocol/server";
 import { registerAppTool } from "@modelcontextprotocol/ext-apps/server";
 import * as z from "zod/v4";
 import { TEMPO_APP_URI } from "./apps.js";
@@ -68,7 +68,7 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
         // A rota é selecionada exclusivamente pela tabela estática acima.
         // O SDK também verifica sua própria allowlist antes de enviar a chamada.
         const request = api.request as unknown as (
-          endpoint: (typeof PUBLIC_ENDPOINTS)[number],
+          endpoint: PublicEndpoint,
           query?: Record<string, string | number | boolean | Array<string | number | boolean>>
         ) => Promise<unknown>;
         const result = await request(definition.endpoint, args.query ?? {});
