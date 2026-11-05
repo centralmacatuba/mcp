@@ -50,6 +50,10 @@ export async function startHttpServer(): Promise<void> {
       maxRequestBodySize: 1_048_576
     });
     const mcpServer = createMcpServer();
+    response.once("close", () => {
+      void transport.close();
+      void mcpServer.close();
+    });
 
     try {
       await mcpServer.connect(transport);
@@ -58,10 +62,6 @@ export async function startHttpServer(): Promise<void> {
       if (!response.headersSent) reject(response, 500, "MCP request failed");
       else response.end();
     } finally {
-      response.once("close", () => {
-        void transport.close();
-        void mcpServer.close();
-      });
       if (response.writableEnded) {
         await transport.close();
         await mcpServer.close();
