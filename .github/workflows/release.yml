@@ -48,7 +48,13 @@ jobs:
           npm --version | awk -F. '{ if ($1 < 11 || ($1 == 11 && $2 < 5) || ($1 == 11 && $2 == 5 && $3 < 1)) exit 1 }'
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile # pnpm-lock.yaml is generated after @centralmacatuba/api@0.1.0 is published
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            echo "::warning::pnpm-lock.yaml is not committed yet; using a non-frozen install until @centralmacatuba/api@0.1.0 is published and the lockfile is generated."
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Typecheck
         run: pnpm typecheck
