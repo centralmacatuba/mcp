@@ -6,8 +6,7 @@ export function createMcpServer() {
   const server = new McpServer({
     name: "centralmacatuba-mcp",
     version: "0.1.0",
-    title: "Central Macatuba",
-    description: "Servidor MCP para descoberta e consulta dos serviços públicos da Central Macatuba."
+    title: "Central Macatuba"
   }, {
     capabilities: { tools: {} }
   });
