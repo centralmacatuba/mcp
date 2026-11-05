@@ -1,5 +1,5 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
+import { McpServer } from "@modelcontextprotocol/server";
+import * as z from "zod/v4";
 import { CentralMacatubaSDK, PUBLIC_ENDPOINTS } from "@centralmacatuba/api";
 
 const queryValue = z.union([
@@ -57,8 +57,8 @@ function jsonText(value: unknown): string {
 export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): void {
   for (const definition of tools) {
     const inputSchema = definition.query
-      ? { query: querySchema.optional().describe("Parâmetros de consulta aceitos pelo endpoint público. Não inclua URLs, caminhos ou cabeçalhos.") }
-      : {};
+      ? z.object({ query: querySchema.optional().describe("Parâmetros de consulta aceitos pelo endpoint público. Não inclua URLs, caminhos ou cabeçalhos.") })
+      : z.object({});
 
     server.registerTool(definition.name, {
       title: definition.title,
