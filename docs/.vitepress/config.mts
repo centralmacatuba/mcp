@@ -3,8 +3,9 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   lang: "pt-BR",
   title: "@centralmacatuba/mcp",
-  description: "Documentação oficial do servidor MCP da Central Macatuba.",
-  base: "/mcp/",
+  description: "Documentação oficial do pacote MCP da Central Macatuba.",
+  // The documentation uses a custom domain, so it is served from the domain root.
+  base: "/",
   lastUpdated: true,
   cleanUrls: true,
   head: [["link", { rel: "stylesheet", href: "/custom.css" }]],
@@ -50,7 +51,7 @@ export default defineConfig({
     search: { provider: "local" },
     socialLinks: [{ icon: "github", link: "https://github.com/centralmacatuba/mcp" }],
     footer: {
-      message: "Servidor MCP de um projeto independente, sem vínculo institucional com a Prefeitura Municipal de Macatuba.",
+      message: "Pacote MCP de um projeto independente, sem vínculo institucional com a Prefeitura Municipal de Macatuba.",
       copyright: "Desenvolvido por Desenvolvedor EE (Dev EE)."
     }
   }
