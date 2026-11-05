@@ -11,7 +11,7 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `ping` | `health.verificar()` | Verifica a disponibilidade da API pública |
 | `avisos.verificar` | `avisos.verificar()` | Somente leitura |
 | `calendario.verificar` | `calendario.verificar()` | Data opcional no formato AAAA-MM-DD |
-| `calendario.gerar` | `calendario.gerar()` | Somente JSON; arquivos binários não são retornados pela ferramenta |
+| `calendario.gerar` | `calendario.gerar()` | Aceita `formato=json`, `formato=pdf` ou `formato=png`; padrão JSON. PDF é retornado como recurso MCP incorporado e PNG como imagem renderizável e recurso nomeado. |
 | `dominios.verificar` | `dominios.verificar()` | Somente dados públicos |
 | `informacoes.listar` | `informacoes.verificar({ funcao: "tudo" })` | Parâmetro de função fixado pelo servidor |
 | `informacoes.obter` | `informacoes.verificar({ funcao: "uma", ... })` | Exige id ou nome |
@@ -90,7 +90,7 @@ As ferramentas retornam:
 - `content` textual com JSON legível, para compatibilidade ampla com clientes MCP.
 - `structuredContent` com o objeto JSON quando a resposta é estruturada, para hosts e MCP Apps que suportam dados estruturados.
 
-Respostas binárias não são expostas pelas ferramentas. Os erros são simplificados para evitar revelar detalhes internos de infraestrutura.
+A ferramenta `calendario.gerar` também expõe os formatos binários declarados pelo SDK. PDF é entregue como recurso MCP incorporado (`application/pdf`) e PNG como conteúdo de imagem (`image/png`) acompanhado de recurso incorporado nomeado. O tamanho máximo de arquivo binário retornado é 8 MiB. Outros endpoints não podem retornar conteúdo binário. Os erros são simplificados para evitar revelar detalhes internos de infraestrutura.
 
 ## Limites e segurança
 
