@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { createApiClient } from "./api.js";
 import { registerApiTools } from "./tools.js";
-import { registerTempoAppResource } from "./apps.js";
+import { registerAppResources } from "./apps.js";
 
 export function createMcpServer() {
   const server = new McpServer({
@@ -10,7 +10,7 @@ export function createMcpServer() {
     title: "Central Macatuba"
   });
 
-  registerTempoAppResource(server);
+  registerAppResources(server);
   registerApiTools(server, createApiClient());
   return server;
 }
