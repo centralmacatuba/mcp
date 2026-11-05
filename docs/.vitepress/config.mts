@@ -7,6 +7,7 @@ export default defineConfig({
   base: "/mcp/",
   lastUpdated: true,
   cleanUrls: true,
+  head: [["link", { rel: "stylesheet", href: "/custom.css" }]],
   themeConfig: {
     siteTitle: "@centralmacatuba/mcp",
     nav: [
