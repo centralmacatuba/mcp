@@ -1,6 +1,16 @@
 name: Documentation
 
 on:
+  push:
+    branches: [principal]
+    paths:
+      - "docs/**"
+      - "scripts/**"
+      - "src/tools.ts"
+      - "test/docs.test.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/docs.yml"
   pull_request:
     branches: [principal]
     paths:
@@ -34,7 +44,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: centralmacatuba/api-sdk
-          ref: feat/sdk-inicial
+          ref: 4582e6591ecdd197ccbc03a8edec92ff9dac71da
           path: api-sdk
           persist-credentials: false
 
