@@ -7,6 +7,7 @@ import type { CentralMacatubaSDK, PublicEndpoint } from "@centralmacatuba/api";
 const text = z.string().max(2048);
 const positiveId = z.number().int().positive();
 const MAX_TOOL_OUTPUT_CHARS = 100_000;
+const MAX_BINARY_OUTPUT_BYTES = 8 * 1024 * 1024;
 type ToolQuery = Record<string, string | number | boolean | Array<string | number | boolean>>;
 
 const queryInput = (schema: z.ZodType<any>) => schema as z.ZodObject<any>;
@@ -103,7 +104,7 @@ const tools: ToolDefinition[] = [
   { name: "ping", title: "Verificar disponibilidade", description: "Verifica a disponibilidade do gateway público da Central Macatuba.", endpoint: "/", inputSchema: noInput },
   { name: "avisos.verificar", title: "Consultar avisos", description: "Consulta avisos ativos publicados pela Central Macatuba.", endpoint: "/api/avisos/verificar", inputSchema: noInput },
   { name: "calendario.verificar", title: "Consultar calendário", description: "Consulta o calendário público. data, quando informada, deve usar AAAA-MM-DD.", endpoint: "/api/calendario/verificar", inputSchema: queryInput(z.object({ data: text.regex(/^\d{4}-\d{2}-\d{2}$/).optional() })) },
-  { name: "calendario.gerar", title: "Gerar calendário em JSON", description: "Gera os dados JSON do calendário. PDF e PNG não são disponibilizados por esta ferramenta.", endpoint: "/api/calendario/gerar", inputSchema: queryInput(z.object({ ano: z.number().int().min(1).max(9999).optional(), formato: z.literal("json").optional() })) },
+  { name: "calendario.gerar", title: "Gerar calendário em JSON", description: "Gera o calendário no formato JSON, PDF ou PNG. O formato padrão é JSON; informe o ano quando desejar um calendário específico.", endpoint: "/api/calendario/gerar", inputSchema: queryInput(z.object({ ano: z.number().int().min(1).max(9999).optional(), formato: z.enum(["json", "pdf", "png"]).optional() })) },
   { name: "dominios.verificar", title: "Verificar domínios", description: "Consulta informações públicas de domínios disponibilizadas pela API.", endpoint: "/api/dominios/verificar", inputSchema: noInput },
   { name: "informacoes.listar", appUri: "ui://centralmacatuba/informacoes", title: "Listar informações", description: "Lista as informações públicas cadastradas.", endpoint: "/api/informacoes/verificar", inputSchema: noInput, fixedQuery: { funcao: "tudo" } },
   { name: "informacoes.obter", title: "Obter informação", description: "Obtém uma informação pública por id ou nome; informe pelo menos um deles.", endpoint: "/api/informacoes/verificar", inputSchema: infoByIdOrName, fixedQuery: { funcao: "uma" } },
@@ -137,6 +138,38 @@ const tools: ToolDefinition[] = [
   { name: "tempo.listar", appUri: "ui://centralmacatuba/tempo", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas. source, start e end são parâmetros opcionais aceitos pelo serviço.", endpoint: "/api/tempo/verificar", inputSchema: queryInput(z.object({ source: text.optional(), start: text.optional(), end: text.optional() })) }
 ];
 
+
+export async function createCalendarFileContent(blob: Blob, ano?: number) {
+  const mimeType = blob.type.split(";")[0]?.trim().toLowerCase();
+  if (mimeType !== "application/pdf" && mimeType !== "image/png") {
+    throw new Error("Formato binário de calendário não suportado.");
+  }
+  if (blob.size > MAX_BINARY_OUTPUT_BYTES) {
+    throw new Error("O arquivo do calendário excedeu o limite de tamanho permitido.");
+  }
+
+  const extension = mimeType === "application/pdf" ? "pdf" : "png";
+  const filename = "calendario-" + (ano ?? "gerado") + "." + extension;
+  const data = Buffer.from(await blob.arrayBuffer()).toString("base64");
+  const resource = {
+    type: "resource" as const,
+    resource: {
+      uri: "urn:centralmacatuba:calendario:" + filename,
+      mimeType,
+      blob: data
+    }
+  };
+
+  // Imagens também são expostas como ImageContent para clientes MCP que
+  // conseguem renderizá-las diretamente; o recurso mantém o arquivo nomeado.
+  return mimeType === "image/png"
+    ? [
+        { type: "image" as const, data, mimeType: "image/png" as const },
+        resource
+      ]
+    : [resource];
+}
+
 function jsonText(value: unknown): string {
   return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : item, 2) ?? String(value);
 }
@@ -164,10 +197,30 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
         const query = { ...args, ...(definition.fixedQuery ?? {}) };
         const result = await request(definition.endpoint, query);
         if (result instanceof Blob) {
-          return {
-            isError: true,
-            content: [{ type: "text" as const, text: "Este endpoint retornou um arquivo binário não disponibilizado por esta ferramenta." }]
-          };
+          if (definition.name !== "calendario.gerar") {
+            return {
+              isError: true,
+              content: [{ type: "text" as const, text: "A API retornou um arquivo binário em uma ferramenta que não oferece esse tipo de resposta." }]
+            };
+          }
+          try {
+            return {
+              content: await createCalendarFileContent(
+                result,
+                typeof args.ano === "number" ? args.ano : undefined
+              )
+            };
+          } catch (error) {
+            return {
+              isError: true,
+              content: [{
+                type: "text" as const,
+                text: error instanceof Error
+                  ? error.message
+                  : "Não foi possível preparar o arquivo do calendário para a resposta MCP."
+              }]
+            };
+          }
         }
         const serialized = jsonText(result);
         if (serialized.length > MAX_TOOL_OUTPUT_CHARS) {
