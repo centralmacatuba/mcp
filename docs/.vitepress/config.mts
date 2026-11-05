@@ -13,9 +13,18 @@ export default defineConfig({
       { text: "Início", link: "/" },
       { text: "Guia", link: "/guide/installation" },
       { text: "Referência", link: "/reference/tools" },
+      { text: "Clientes", link: "/clientes" },
+      { text: "Compatibilidade", link: "/compatibilidade" },
       { text: "GitHub", link: "https://github.com/centralmacatuba/mcp" }
     ],
     sidebar: {
+      "/": [{
+        text: "Documentos adicionais",
+        items: [
+          { text: "Clientes (configuração)", link: "/clientes" },
+          { text: "Compatibilidade (matriz)", link: "/compatibilidade" }
+        ]
+      }],
       "/guide/": [{
         text: "Guia",
         items: [
