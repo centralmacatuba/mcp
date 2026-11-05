@@ -50,7 +50,7 @@ describe("public MCP tools", () => {
     expect(schema("calendario.verificar").safeParse({ data: "2026-11-05" }).success).toBe(true);
     expect(schema("calendario.verificar").safeParse({ data: "05/11/2026" }).success).toBe(false);
 
-    expect(schema("servicos.pesquisar").safeParse({ termo: "Macatuba".repeat(20) }).success).toBe(false);
+    expect(schema("servicos.pesquisar").safeParse({ termo: "Macatuba".repeat(30) }).success).toBe(false);
   });
 
   it("preserves optional map filters and validates filter mode", () => {
