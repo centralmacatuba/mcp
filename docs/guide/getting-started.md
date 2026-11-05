@@ -18,8 +18,10 @@ O processo mantém o canal MCP em `stdin/stdout`. Não escreva logs ou mensagens
 
 ## Executar por Streamable HTTP
 
+A variável `PORT` tem precedência sobre `MCP_HTTP_PORT`. Defina-a explicitamente para garantir a porta do exemplo:
+
 ```bash
-MCP_HTTP_PORT=3000 MCP_ALLOWED_HOSTS=localhost,127.0.0.1 node dist/cli.js --transport http
+PORT=3000 MCP_ALLOWED_HOSTS=localhost,127.0.0.1,::1 node dist/cli.js --transport http
 ```
 
 O endpoint MCP local será:
