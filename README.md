@@ -66,6 +66,10 @@ Endpoint: `http://localhost:3000/mcp`.
 
 Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço. O servidor usa somente as operações disponibilizadas pelo SDK público.
 
+## Documentação
+
+A documentação completa está em [`docs/`](docs/), com guias de instalação, configuração, transportes, desenvolvimento, referência de ferramentas e MCP Apps. Para executar localmente: `pnpm docs:dev`; para validar e gerar o site: `pnpm docs:test` e `pnpm docs:build`.
+
 ## Ferramentas
 
 As ferramentas iniciais são somente leitura e mapeiam para endpoints presentes na allowlist do SDK público. Consulte [matriz de compatibilidade](docs/compatibilidade.md) para ver o que foi preservado, redesenhado ou excluído do servidor PHP legado.
