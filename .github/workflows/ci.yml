@@ -73,9 +73,43 @@ jobs:
 
       - name: Verify MCP App bundles
         run: |
-          for app in tempo servicos mapa jornal informacoes cursos sos; do
-            test -s "dist/apps/$app.html"
-          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+
+          const apps = ["tempo", "servicos", "mapa", "jornal", "informacoes", "cursos", "sos"];
+          const failures = [];
+
+          for (const app of apps) {
+            const path = `dist/apps/${app}.html`;
+            if (!fs.existsSync(path)) {
+              failures.push(`${path}: arquivo ausente`);
+              continue;
+            }
+
+            const html = fs.readFileSync(path, "utf8");
+            const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+            const styles = [...html.matchAll(/<style\\b[^>]*>([\\s\\S]*?)<\\/style>/gi)];
+
+            if (!/^<!doctype html>/i.test(html.trimStart())) failures.push(`${path}: doctype ausente`);
+            if (!html.includes("data-mcp-app")) failures.push(`${path}: marcador MCP App ausente`);
+            if (!html.includes("data-tool=")) failures.push(`${path}: ferramenta vinculada ausente`);
+            if (!scripts.length || scripts.every(([, attrs, body]) => /\\bsrc\\s*=/i.test(attrs) || !body.trim())) {
+              failures.push(`${path}: JavaScript não foi incorporado ao HTML`);
+            }
+            if (!styles.length || styles.every(([, body]) => !body.trim())) {
+              failures.push(`${path}: CSS não foi incorporado ao HTML`);
+            }
+            if (/<(?:script|link)\\b[^>]*(?:src|href)=["']\\/(?:src|assets)\\//i.test(html)) {
+              failures.push(`${path}: dependência local externa permaneceu no HTML`);
+            }
+          }
+
+          if (failures.length) {
+            console.error(failures.join("\\n"));
+            process.exit(1);
+          }
+          console.log(`Os ${apps.length} MCP Apps possuem HTML, JavaScript e CSS incorporados.`);
+          NODE
 
       - name: Restore published dependency metadata
         run: |
