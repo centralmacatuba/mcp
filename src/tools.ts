@@ -9,8 +9,7 @@ const positiveId = z.number().int().positive();
 const MAX_TOOL_OUTPUT_CHARS = 100_000;
 type ToolQuery = Record<string, string | number | boolean | Array<string | number | boolean>>;
 
-const queryInput = (schema: z.ZodType<any>, required = false) =>
-  z.object({ query: required ? schema : schema.optional() });
+const queryInput = (schema: z.ZodType<any>, _required = false) => schema as z.ZodObject<any>;
 const noInput = z.object({});
 
 const infoByIdOrName = queryInput(z.object({
@@ -139,7 +138,7 @@ function jsonText(value: unknown): string {
 export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): void {
   for (const definition of tools) {
     const handler = async (rawArgs: unknown) => {
-      const args = rawArgs as { query?: ToolQuery };
+      const args = (rawArgs ?? {}) as ToolQuery;
       try {
         // A rota é estática, os argumentos seguem schemas Zod derivados do OpenAPI,
         // e o SDK ainda valida a allowlist pública antes de enviar a requisição.
@@ -147,7 +146,7 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
           endpoint: PublicEndpoint,
           query?: ToolQuery
         ) => Promise<unknown>;
-        const query = { ...(definition.fixedQuery ?? {}), ...(args.query ?? {}) };
+        const query = { ...(definition.fixedQuery ?? {}), ...args };
         const result = await request(definition.endpoint, query);
         if (result instanceof Blob) {
           return {
