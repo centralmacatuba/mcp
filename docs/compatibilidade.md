@@ -20,12 +20,12 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `jornal.obter` | `jornal.verificar({ funcao: "uma", id })` | Exige id positivo |
 | `jornal.pesquisar` | `jornal.pesquisar()` | Exige `q`; filtro opcional |
 | `links.pesquisar` | `links.pesquisar()` | Termo opcional |
-| `links.verificar` | `links.verificar()` | Função e id opcionais |
+| `links.verificar` | `links.verificar()` | Lista links ativos ou obtém um link por id; exige id quando `funcao=uma`. A função `pendentes` é deliberadamente excluída por poder retornar dados operacionais. |
 | `mapa.listar` | `mapa.verificar()` | Lista pontos; aceita filtros opcionais |
 | `mapa.filtrar` | `mapa.verificar()` | Exige pelo menos um filtro |
 | `mapa.pesquisar` | `mapa.pesquisar()` | Exige `q`; filtro opcional |
 | `novidades.pesquisar` | `novidades.pesquisar()` | Termo opcional, até 200 caracteres |
-| `novidades.verificar` | `novidades.verificar()` | Função e id opcionais |
+| `novidades.verificar` | `novidades.verificar()` | Exige id quando `funcao=uma`. |
 | `paginas.pesquisar` | `paginas.pesquisar()` | Pesquisa pública |
 | `paginas.verificar` | `paginas.verificar({ id })` | No MCP, exige id explícito |
 | `redicionador.verificar` | `redicionador.verificar()` | Exige slug no parâmetro `url` |
@@ -37,9 +37,9 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `servicos_docs.pesquisar` | `servicos.docs.pesquisar()` | Filtros opcionais |
 | `servicos_docs.verificar` | `servicos.docs.verificar()` | Exige slug |
 | `servicos_jogos.pesquisar` | `servicos.jogos.pesquisar()` | Termo e campo opcionais |
-| `servicos_jogos.verificar` | `servicos.jogos.verificar()` | Consulta por id, nome ou slug |
+| `servicos_jogos.verificar` | `servicos.jogos.verificar()` | Exige ao menos um identificador: id, nome ou slug. |
 | `servicos_streaming.pesquisar` | `servicos.streaming.pesquisar()` | Exige tipo válido |
-| `servicos_streaming.verificar` | `servicos.streaming.verificar()` | Exige tipo válido |
+| `servicos_streaming.verificar` | `servicos.streaming.verificar()` | Exige tipo válido e id quando `funcao=uma`. |
 | `servicos_streaming.live_verificar` | `servicos.streaming.live.verificar()` | Consulta transmissões ao vivo e agendadas |
 | `sos.listar` | `sos.listarAlertas()` | Consulta alertas públicos; não encaminha cookies de navegador |
 | `tempo.listar` | `tempo.verificar()` | MCP App Tempo |
@@ -62,9 +62,13 @@ As sete interfaces são empacotadas como HTML autocontido durante o build. Seus 
 
 Os nomes das ferramentas e os argumentos são mantidos no nível superior, sempre que compatíveis com a operação pública. Os schemas Zod validam os campos antes de chamar o SDK. Campos fixos como `funcao=tudo`, `funcao=uma` e `funcao=pesquisar` são definidos pelo servidor, não pelo cliente, para que a ferramenta mantenha o significado anunciado.
 
-As ferramentas de lista que historicamente aceitavam filtros continuam aceitando-os. Em particular, `mapa.listar` e `mapa.filtrar` aceitam `tipo`, `criador` e `verificado`, todos opcionais.
+As ferramentas de lista que historicamente aceitavam filtros continuam aceitando-os. `mapa.listar` aceita `tipo`, `criador` e `verificado` como filtros opcionais; `mapa.filtrar` exige pelo menos um desses filtros não vazio.
 
 A ferramenta `paginas.verificar` requer um id explícito no servidor MCP. O contexto HTTP de um cliente MCP não é o mesmo contexto de Host/path de um navegador, portanto o servidor não tenta inferir a página atual do cliente.
+
+A ferramenta `links.verificar` não disponibiliza `funcao=pendentes`: a documentação do contrato público alerta que essa consulta pode conter dados operacionais, portanto ela não é apropriada para exposição irrestrita via MCP. A função `uma` exige um id.
+
+As funções `uma` de `novidades.verificar` e `servicos_streaming.verificar` também exigem id explícito.
 
 A ferramenta `sos.listar` usa a operação pública de alertas do SDK. Não envia permissões de notificação do navegador e não tenta reproduzir preferências locais do usuário.
 
