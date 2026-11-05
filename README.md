@@ -62,7 +62,7 @@ Endpoint: `http://localhost:3000/mcp`.
 | `MCP_HTTP_PORT` | `3000` | Porta HTTP alternativa |
 | `MCP_HTTP_HOST` | `0.0.0.0` | Interface de escuta |
 | `MCP_ALLOWED_HOSTS` | localhost / loopback | Hosts HTTP permitidos, separados por vírgula |
-| `MCP_ALLOWED_ORIGINS` | vazio | Allowlist opcional de Origin para clientes browser |
+| `MCP_ALLOWED_ORIGINS` | vazio | Origens browser explicitamente permitidas; vazio rejeita requisições que enviem Origin |
 
 Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço. Não configure `X-API-KEY`, `X-CM-CLIENT-ID` ou `X-CM-REQUEST-TOKEN`: este servidor não precisa desses segredos e não deve recebê-los.
 
