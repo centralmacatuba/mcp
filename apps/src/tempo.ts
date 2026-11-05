@@ -21,10 +21,6 @@ app.ontoolresult = (result) => {
   catch { showResult(text); }
 };
 
-app.onerror = (error) => {
-  if (statusElement) statusElement.textContent = "Não foi possível atualizar os dados.";
-  if (resultElement) resultElement.textContent = error.message;
-};
 
 refreshButton?.addEventListener("click", async () => {
   if (statusElement) statusElement.textContent = "Consultando Tempo Macatuba…";
