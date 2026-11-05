@@ -66,7 +66,12 @@
     "dev": "tsx src/cli.ts --transport stdio",
     "build:apps": "vite build --config vite.apps.config.ts",
     "prepack": "pnpm build",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "docs:generate": "tsx scripts/generate-docs-reference.ts",
+    "docs:dev": "pnpm docs:generate && vitepress dev docs",
+    "docs:build": "pnpm docs:generate && vitepress build docs",
+    "docs:preview": "pnpm docs:generate && vitepress preview docs",
+    "docs:test": "pnpm docs:generate && vitest run test/docs.test.ts"
   },
   "dependencies": {
     "@centralmacatuba/api": "^0.1.0",
@@ -83,6 +88,7 @@
     "vitest": "^4.1.12",
     "vite": "^6.4.1",
     "vite-plugin-singlefile": "^2.3.0",
-    "@changesets/cli": "^2.31.1"
+    "@changesets/cli": "^2.31.1",
+    "vitepress": "1.6.4"
   }
 }
