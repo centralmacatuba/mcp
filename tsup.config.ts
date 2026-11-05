@@ -15,6 +15,5 @@ export default defineConfig({
   dts: true,
   splitting: false,
   treeshake: true,
-  banner: { js: "#!/usr/bin/env node" },
   external: ["@centralmacatuba/api", "@modelcontextprotocol/server", "@modelcontextprotocol/node", "@modelcontextprotocol/client", "@modelcontextprotocol/ext-apps", "zod"]
 });
