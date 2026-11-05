@@ -7,7 +7,8 @@ function requestHost(request: IncomingMessage): string | undefined {
   const raw = request.headers.host;
   if (!raw) return undefined;
   try {
-    return new URL(`http://${raw}`).hostname.toLowerCase();
+    const hostname = new URL(`http://${raw}`).hostname.toLowerCase();
+    return hostname.startsWith("[") && hostname.endsWith("]") ? hostname.slice(1, -1) : hostname;
   } catch {
     return undefined;
   }
@@ -50,10 +51,14 @@ export async function startHttpServer(): Promise<void> {
       maxRequestBodySize: 1_048_576
     });
     const mcpServer = createMcpServer();
-    response.once("close", () => {
-      void transport.close();
-      void mcpServer.close();
-    });
+    let cleanedUp = false;
+    const cleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      void transport.close().catch(() => undefined);
+      void mcpServer.close().catch(() => undefined);
+    };
+    response.once("close", cleanup);
 
     try {
       await mcpServer.connect(transport);
@@ -62,10 +67,7 @@ export async function startHttpServer(): Promise<void> {
       if (!response.headersSent) reject(response, 500, "MCP request failed");
       else response.end();
     } finally {
-      if (response.writableEnded) {
-        await transport.close();
-        await mcpServer.close();
-      }
+      if (response.writableEnded) cleanup();
     }
   });
 
