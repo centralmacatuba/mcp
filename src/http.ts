@@ -34,7 +34,7 @@ export async function startHttpServer(): Promise<void> {
     }
 
     const origin = request.headers.origin?.toLowerCase();
-    if (origin && config.allowedOrigins.size > 0 && !config.allowedOrigins.has(origin)) {
+    if (origin && !config.allowedOrigins.has(origin)) {
       reject(response, 403, "Origin not allowed");
       return;
     }
