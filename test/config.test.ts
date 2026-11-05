@@ -7,6 +7,7 @@ describe("loadConfig", () => {
     expect(config.apiBaseUrl).toBe("https://publica.api.centralmacatuba.qzz.io");
     expect(config.httpPort).toBe(3000);
     expect(config.allowedHosts.has("localhost")).toBe(true);
+    expect(config.allowedOrigins.size).toBe(0);
   });
 
   it("normalizes API base URLs", () => {
