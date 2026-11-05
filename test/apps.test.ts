@@ -30,7 +30,11 @@ describe("MCP App resources", () => {
     }
   });
 
+  it("rejects file names outside the registered resource allowlist", async () => {
+    await expect(readAppHtml("../README.md")).rejects.toThrow(/não pertence à lista/);
+  });
+
   it("reports a clear error when an app HTML file is missing", async () => {
-    await expect(readAppHtml("missing-app.html")).rejects.toThrow(/não encontrado/);
+    await expect(readAppHtml("missing-app.html")).rejects.toThrow(/não pertence à lista/);
   });
 });
