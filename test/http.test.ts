@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   closeTransport: vi.fn(),
   closeMcp: vi.fn(),
   closeHttp: vi.fn(),
+  serverErrorListener: undefined as undefined | ((error: Error) => void),
   transportOptions: undefined as unknown
 }));
 
@@ -21,7 +22,11 @@ vi.mock("node:http", () => ({
   createServer: (callback: typeof mocks.callback) => {
     mocks.callback = callback;
     return {
-      once: vi.fn(),
+      once: vi.fn((event: string, listener: (error: Error) => void) => {
+        if (event === "error") mocks.serverErrorListener = listener;
+        return undefined;
+      }),
+      off: vi.fn(),
       listen: mocks.listen,
       close: mocks.closeHttp
     };
@@ -168,10 +173,19 @@ describe("HTTP transport startup and shutdown", () => {
     mocks.closeHttp.mockImplementation((callback?: (error?: Error) => void) => callback?.());
   });
 
-  it("rejects when the HTTP listener cannot start", async () => {
+  it("rejects when the HTTP listener cannot start synchronously", async () => {
     const startupError = Object.assign(new Error("address already in use"), { code: "EADDRINUSE" });
     mocks.listen.mockImplementationOnce(() => { throw startupError; });
     await expect(startHttpServer()).rejects.toBe(startupError);
+  });
+
+  it("rejects asynchronous listener errors and removes the startup error handler", async () => {
+    mocks.listen.mockImplementationOnce(() => undefined);
+    const startup = startHttpServer();
+    const startupError = Object.assign(new Error("address already in use"), { code: "EADDRINUSE" });
+    expect(mocks.serverErrorListener).toBeTypeOf("function");
+    mocks.serverErrorListener?.(startupError);
+    await expect(startup).rejects.toBe(startupError);
   });
 
   it.each(["SIGINT", "SIGTERM"] as const)("closes the listener on %s", async (signal) => {
