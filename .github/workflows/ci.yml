@@ -68,6 +68,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Package consumer smoke test
+        run: pnpm test:package
+
       - name: Verify MCP App bundles
         run: |
           for app in tempo servicos mapa jornal informacoes cursos sos; do
