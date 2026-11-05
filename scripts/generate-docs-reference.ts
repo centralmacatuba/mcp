@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { registeredToolDefinitions } from "../src/tools.js";
 import { z } from "zod/v4";
@@ -20,7 +20,7 @@ for (const tool of registeredToolDefinitions) {
   if (tool.fixedQuery) lines.push(`- **Parâmetros fixos:** \`${JSON.stringify(tool.fixedQuery)}\``);
   if (tool.appUri) lines.push(`- **MCP App:** \`${tool.appUri}\``);
   lines.push("", "### Schema de entrada", "", "```json");
-  lines.push(JSON.stringify(z.toJSONSchema(tool.inputSchema), null, 2));
+  lines.push(JSON.stringify(z.toJSONSchema(tool.inputSchema, { unrepresentable: "any" }), null, 2));
   lines.push("```", "");
 }
 
