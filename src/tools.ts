@@ -17,8 +17,13 @@ const infoByIdOrName = queryInput(z.object({
   nome: text.optional()
 }).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."));
 const searchInfo = queryInput(z.object({
-  p: text.optional(),
+  p: text.min(1),
   filtro: z.enum(["nome", "tipo", "bairro", "zona"]).optional()
+}));
+const mapList = queryInput(z.object({
+  tipo: text.optional(),
+  criador: text.optional(),
+  verificado: text.optional()
 }));
 const searchJournal = queryInput(z.object({
   q: text.min(1),
@@ -108,17 +113,17 @@ const tools: ToolDefinition[] = [
   { name: "jornal.pesquisar", title: "Pesquisar no Jornal", description: "Pesquisa publicações no Jornal Macatuba. q é obrigatório; filtro restringe o campo pesquisado.", endpoint: "/api/jornal/pesquisar", inputSchema: searchJournal },
   { name: "links.pesquisar", title: "Pesquisar links", description: "Pesquisa links públicos catalogados pela Central Macatuba pelo termo informado.", endpoint: "/api/links/pesquisar", inputSchema: searchLinks },
   { name: "links.verificar", title: "Verificar links", description: "Consulta o catálogo de links, podendo filtrar por função e id.", endpoint: "/api/links/verificar", inputSchema: verifyLinks },
-  { name: "mapa.listar", title: "Listar pontos do mapa", description: "Lista pontos e locais disponíveis no Mapa Macatuba.", endpoint: "/api/mapa/verificar", inputSchema: noInput },
+  { name: "mapa.listar", title: "Listar pontos do mapa", description: "Lista pontos e locais do Mapa Macatuba; aceita filtros opcionais por tipo, criador e verificação.", endpoint: "/api/mapa/verificar", inputSchema: mapList },
   { name: "mapa.filtrar", title: "Filtrar pontos do mapa", description: "Filtra pontos do mapa por tipo, criador ou estado de verificação. Informe ao menos um filtro.", endpoint: "/api/mapa/verificar", inputSchema: filterMap },
   { name: "mapa.pesquisar", title: "Pesquisar no mapa", description: "Pesquisa locais no Mapa Macatuba. q é obrigatório; filtro restringe o campo.", endpoint: "/api/mapa/pesquisar", inputSchema: searchMap },
   { name: "novidades.pesquisar", title: "Pesquisar novidades", description: "Pesquisa novidades publicadas na Central Macatuba.", endpoint: "/api/novidades/pesquisar", inputSchema: queryInput(z.object({ q: text.max(200).optional() })) },
   { name: "novidades.verificar", title: "Verificar novidades", description: "Consulta novidades por função e, opcionalmente, id.", endpoint: "/api/novidades/verificar", inputSchema: verifyItems },
   { name: "paginas.pesquisar", title: "Pesquisar páginas", description: "Pesquisa páginas públicas catalogadas pela Central Macatuba.", endpoint: "/api/paginas/pesquisar", inputSchema: queryInput(z.object({ q: text.optional() })) },
-  { name: "paginas.verificar_id", title: "Consultar página por ID", description: "Consulta uma página pública pelo seu ID numérico.", endpoint: "/api/paginas/verificar", inputSchema: queryInput(z.object({ id: positiveId })) },
+  { name: "paginas.verificar", title: "Consultar página por ID", description: "Consulta uma página pública pelo ID explícito. O servidor MCP não herda o Host/path do cliente.", endpoint: "/api/paginas/verificar", inputSchema: queryInput(z.object({ id: positiveId })) },
   { name: "redicionador.verificar", title: "Verificar redirecionador", description: "Verifica se o slug derivado do parâmetro url existe e se o domínio do cliente está autorizado.", endpoint: "/api/redicionador/verificar", inputSchema: queryInput(z.object({ url: text.min(1) })) },
   { name: "servicos.listar", title: "Listar serviços", description: "Lista os serviços públicos do catálogo Serviços Macatuba.", endpoint: "/api/servicos/verificar", inputSchema: noInput, fixedQuery: { funcao: "tudo" } },
   { name: "servicos.obter", title: "Obter serviço", description: "Obtém um serviço por id ou nome; informe pelo menos um deles.", endpoint: "/api/servicos/verificar", inputSchema: serviceByIdOrName, fixedQuery: { funcao: "uma" } },
-  { name: "servicos.pesquisar", title: "Pesquisar serviços", description: "Pesquisa serviços públicos pelo termo informado.", endpoint: "/api/servicos/verificar", inputSchema: queryInput(z.object({ termo: text.min(1) })), fixedQuery: { funcao: "pesquisar" } },
+  { name: "servicos.pesquisar", title: "Pesquisar serviços", description: "Pesquisa serviços públicos pelo termo informado (até 200 caracteres).", endpoint: "/api/servicos/verificar", inputSchema: queryInput(z.object({ termo: text.min(1).max(200) })), fixedQuery: { funcao: "pesquisar" } },
   { name: "servicos_cursos.pesquisar", title: "Pesquisar cursos", description: "Pesquisa cursos por termo, categoria, nível e campo.", endpoint: "/api/servicos/cursos/pesquisar", inputSchema: searchCourses },
   { name: "servicos_cursos.verificar", title: "Verificar cursos", description: "Consulta cursos por categoria ou slug.", endpoint: "/api/servicos/cursos/verificar", inputSchema: verifyCourses },
   { name: "servicos_docs.pesquisar", title: "Pesquisar documentação", description: "Pesquisa documentação por categoria, termo e campo.", endpoint: "/api/servicos/docs/pesquisar", inputSchema: searchDocs },
@@ -127,7 +132,8 @@ const tools: ToolDefinition[] = [
   { name: "servicos_jogos.verificar", title: "Verificar jogos", description: "Consulta jogos por id, nome ou slug.", endpoint: "/api/servicos/jogos/verificar", inputSchema: verifyGames },
   { name: "servicos_streaming.pesquisar", title: "Pesquisar streaming", description: "Pesquisa streaming. tipo é obrigatório e aceita radio, tv, vod, camera ou podcast.", endpoint: "/api/servicos/streaming/pesquisar", inputSchema: searchStreaming },
   { name: "servicos_streaming.verificar", title: "Verificar streaming", description: "Consulta streaming. tipo é obrigatório e aceita radio, tv, vod, camera ou podcast.", endpoint: "/api/servicos/streaming/verificar", inputSchema: verifyStreaming },
-  { name: "servicos_streaming_live.verificar", title: "Verificar streaming ao vivo", description: "Consulta o estado público do serviço de streaming ao vivo.", endpoint: "/api/servicos/streaming/live/verificar", inputSchema: queryInput(z.object({ funcao: text.optional() })) },
+  { name: "servicos_streaming.live_verificar", title: "Verificar streaming ao vivo", description: "Consulta o estado público do serviço de streaming ao vivo.", endpoint: "/api/servicos/streaming/live/verificar", inputSchema: queryInput(z.object({ funcao: text.optional() })) },
+  { name: "sos.listar", title: "Consultar alertas SOS", description: "Lista os alertas públicos do SOS Macatuba. A consulta não solicita nem armazena permissões de notificação do navegador.", endpoint: "/api/sos/listar_alertas", inputSchema: noInput },
   { name: "tempo.listar", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas. source, start e end são parâmetros opcionais aceitos pelo serviço.", endpoint: "/api/tempo/verificar", inputSchema: queryInput(z.object({ source: text.optional(), start: text.optional(), end: text.optional() })), app: true }
 ];
 
@@ -146,7 +152,7 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
           endpoint: PublicEndpoint,
           query?: ToolQuery
         ) => Promise<unknown>;
-        const query = { ...(definition.fixedQuery ?? {}), ...args };
+        const query = { ...args, ...(definition.fixedQuery ?? {}) };
         const result = await request(definition.endpoint, query);
         if (result instanceof Blob) {
           return {
@@ -161,7 +167,13 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
             content: [{ type: "text" as const, text: "A resposta excedeu o limite de tamanho permitido para uma ferramenta MCP." }]
           };
         }
-        return { content: [{ type: "text" as const, text: serialized }] };
+        const structuredContent = result !== null && typeof result === "object" && !Array.isArray(result)
+          ? result as Record<string, unknown>
+          : { data: result };
+        return {
+          content: [{ type: "text" as const, text: serialized }],
+          structuredContent
+        };
       } catch (error) {
         const status = typeof error === "object" && error !== null && "status" in error
           ? (error as { status?: unknown }).status
