@@ -71,7 +71,8 @@
     "docs:dev": "pnpm docs:generate && vitepress dev docs",
     "docs:build": "pnpm docs:generate && vitepress build docs",
     "docs:preview": "pnpm docs:generate && vitepress preview docs",
-    "docs:test": "pnpm docs:generate && vitest run test/docs.test.ts"
+    "docs:test": "pnpm docs:generate && vitest run test/docs.test.ts",
+    "test:package": "node test/package-consumer.mjs"
   },
   "dependencies": {
     "@centralmacatuba/api": "^0.1.0",
