@@ -8,6 +8,7 @@ export default defineConfig({
   root: appRoot,
   plugins: [viteSingleFile()],
   build: {
+    target: "esnext",
     rollupOptions: {
       input: {
         tempo: fileURLToPath(new URL("./apps/tempo.html", import.meta.url)),
