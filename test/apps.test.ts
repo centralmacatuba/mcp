@@ -22,11 +22,13 @@ describe("MCP App resources", () => {
     }
   });
 
-  it("loads the source HTML for MCP App resources in development", async () => {
+  it("loads the compiled standalone HTML for MCP App resources in development", async () => {
     for (const app of APP_RESOURCES) {
       const html = await readAppHtml(app.file);
       expect(html).toContain("<html");
       expect(html).toContain("</html>");
+      expect(html).toContain("data-mcp-app");
+      expect(html).not.toContain("/src/catalog.ts");
     }
   });
 
