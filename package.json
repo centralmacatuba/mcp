@@ -72,7 +72,7 @@
     "docs:build": "pnpm docs:generate && vitepress build docs",
     "docs:preview": "pnpm docs:generate && vitepress preview docs",
     "docs:test": "pnpm docs:generate && vitest run test/docs.test.ts",
-    "test:package": "node test/package-consumer.mjs"
+    "test:package": "node test/package-consumer.mjs && node test/mcp-client.mjs"
   },
   "dependencies": {
     "@centralmacatuba/api": "0.1.0",
@@ -90,6 +90,7 @@
     "vite": "^6.4.1",
     "vite-plugin-singlefile": "^2.3.0",
     "@changesets/cli": "^2.31.1",
-    "vitepress": "1.6.4"
+    "vitepress": "1.6.4",
+    "@modelcontextprotocol/client": "^2.4.0"
   }
 }
