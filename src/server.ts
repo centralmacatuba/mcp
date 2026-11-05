@@ -7,7 +7,7 @@ export function createMcpServer() {
   const server = new McpServer({
     name: "centralmacatuba-mcp",
     version: "0.1.0",
-    title: "Central Macatuba"
+    title: "Central Macatuba - MCP"
   });
 
   registerAppResources(server);
