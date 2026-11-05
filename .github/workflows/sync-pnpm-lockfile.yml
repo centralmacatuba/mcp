@@ -1,7 +1,8 @@
 name: Sync pnpm lockfile
 
 on:
-  # Manual execution only. Automatic triggers are intentionally disabled.
+  # Manual execution only: run this after the public API SDK version declared
+  # in package.json is available from the npm registry.
   workflow_dispatch:
 
 permissions:
@@ -13,38 +14,44 @@ concurrency:
 
 jobs:
   sync:
-    # Keep the default branch protected from direct workflow commits.
+    # Never commit directly to the protected default branch.
     if: github.ref != 'refs/heads/principal'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0
+          persist-credentials: true
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
           version: 12.12.1
           run_install: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
-          #cache: pnpm
+          package-manager-cache: false
 
-      # A full install creates pnpm-lock.yaml when it is missing and
-      # synchronizes it when it already exists.
+      - name: Verify published API SDK dependency
+        run: |
+          if ! npm view @centralmacatuba/api@0.1.0 version; then
+            echo "::error::@centralmacatuba/api@0.1.0 is not available from the npm registry. Publish the compatible API SDK version before synchronizing this lockfile."
+            exit 1
+          fi
+
+      # Creates pnpm-lock.yaml when absent and reconciles it with package.json.
       - name: Regenerate lockfile
         run: pnpm install --no-frozen-lockfile --ignore-scripts
 
-      # Validate with the exact frozen mode used by CI before committing.
+      # Verify that the generated lockfile is reproducible by CI/release installs.
       - name: Validate frozen lockfile
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Commit and push lockfile when changed or missing from Git
+      - name: Commit and push lockfile when changed
         run: |
           if [ -z "$(git status --porcelain -- pnpm-lock.yaml)" ]; then
             echo "Lockfile is already synchronized and passes frozen validation."
@@ -56,4 +63,4 @@ jobs:
 
           git add -- pnpm-lock.yaml
           git commit -m "chore: sync pnpm lockfile"
-          git push
+          git push origin "HEAD:${GITHUB_REF_NAME}"
