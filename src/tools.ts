@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { registerAppTool } from "@modelcontextprotocol/ext-apps/server";
 import * as z from "zod/v4";
 import { TEMPO_APP_URI } from "./apps.js";
-import { CentralMacatubaSDK, PUBLIC_ENDPOINTS } from "@centralmacatuba/api";
+import type { CentralMacatubaSDK, PublicEndpoint } from "@centralmacatuba/api";
 
 const queryValue = z.union([
   z.string(),
@@ -16,7 +16,7 @@ interface ToolDefinition {
   name: string;
   title: string;
   description: string;
-  endpoint: (typeof PUBLIC_ENDPOINTS)[number];
+  endpoint: PublicEndpoint;
   query?: boolean;
   app?: boolean;
 }
@@ -54,7 +54,7 @@ const tools: ToolDefinition[] = [
 ];
 
 function jsonText(value: unknown): string {
-  return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : item, 2);
+  return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : item, 2) ?? String(value);
 }
 
 export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): void {
