@@ -203,7 +203,7 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
       try {
         // A rota é estática, os argumentos seguem schemas Zod derivados do OpenAPI,
         // e o SDK ainda valida a allowlist pública antes de enviar a requisição.
-        const request = api.request as unknown as (
+        const request = api.request.bind(api) as unknown as (
           endpoint: PublicEndpoint,
           query?: ToolQuery
         ) => Promise<unknown>;
