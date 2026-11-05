@@ -1,5 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
+import { registerAppTool } from "@modelcontextprotocol/ext-apps/server";
 import * as z from "zod/v4";
+import { TEMPO_APP_URI } from "./apps.js";
 import { CentralMacatubaSDK, PUBLIC_ENDPOINTS } from "@centralmacatuba/api";
 
 const queryValue = z.union([
@@ -16,6 +18,7 @@ interface ToolDefinition {
   description: string;
   endpoint: (typeof PUBLIC_ENDPOINTS)[number];
   query?: boolean;
+  app?: boolean;
 }
 
 const tools: ToolDefinition[] = [
@@ -47,7 +50,7 @@ const tools: ToolDefinition[] = [
   { name: "servicos_streaming.verificar", title: "Verificar streaming", description: "Consulta o estado do catálogo de streaming.", endpoint: "/api/servicos/streaming/verificar", query: true },
   { name: "servicos_streaming_live.verificar", title: "Verificar streaming ao vivo", description: "Consulta o estado público do serviço de streaming ao vivo.", endpoint: "/api/servicos/streaming/live/verificar", query: true },
   { name: "sos.listar", title: "Listar alertas SOS", description: "Lista alertas disponibilizados pelo serviço SOS público, conforme as permissões do endpoint.", endpoint: "/api/sos/listar_alertas" },
-  { name: "tempo.listar", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas disponibilizadas pelo Tempo Macatuba. Parâmetros opcionais aceitos pelo serviço podem ser enviados em query.", endpoint: "/api/tempo/verificar", query: true }
+  { name: "tempo.listar", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas disponibilizadas pelo Tempo Macatuba. Parâmetros opcionais aceitos pelo serviço podem ser enviados em query.", endpoint: "/api/tempo/verificar", query: true, app: true }
 ];
 
 function jsonText(value: unknown): string {
@@ -60,12 +63,7 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
       ? z.object({ query: querySchema.optional().describe("Parâmetros de consulta aceitos pelo endpoint público. Não inclua URLs, caminhos ou cabeçalhos.") })
       : z.object({});
 
-    server.registerTool(definition.name, {
-      title: definition.title,
-      description: definition.description,
-      inputSchema,
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false }
-    }, async (args) => {
+    const handler = async (args: { query?: Record<string, string | number | boolean | Array<string | number | boolean>> }) => {
       try {
         // A rota é selecionada exclusivamente pela tabela estática acima.
         // O SDK também verifica sua própria allowlist antes de enviar a chamada.
@@ -73,18 +71,14 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
           endpoint: (typeof PUBLIC_ENDPOINTS)[number],
           query?: Record<string, string | number | boolean | Array<string | number | boolean>>
         ) => Promise<unknown>;
-        const query = "query" in args ? args.query : undefined;
-        const result = await request(
-          definition.endpoint,
-          (query ?? {}) as Record<string, string | number | boolean | Array<string | number | boolean>>
-        );
+        const result = await request(definition.endpoint, args.query ?? {});
         if (result instanceof Blob) {
           return {
             isError: true,
-            content: [{ type: "text", text: "Este endpoint retorna um arquivo binário. A disponibilização de arquivos por MCP será implementada após definir o contrato de recursos." }]
+            content: [{ type: "text" as const, text: "Este endpoint retorna um arquivo binário. A disponibilização de arquivos por MCP será implementada após definir o contrato de recursos." }]
           };
         }
-        return { content: [{ type: "text", text: jsonText(result) }] };
+        return { content: [{ type: "text" as const, text: jsonText(result) }] };
       } catch (error) {
         const status = typeof error === "object" && error !== null && "status" in error
           ? (error as { status?: unknown }).status
@@ -92,10 +86,26 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
         const statusText = typeof status === "number" ? ` (HTTP ${status})` : "";
         return {
           isError: true,
-          content: [{ type: "text", text: `A consulta à API pública falhou${statusText}. Verifique os parâmetros ou tente novamente mais tarde.` }]
+          content: [{ type: "text" as const, text: `A consulta à API pública falhou${statusText}. Verifique os parâmetros ou tente novamente mais tarde.` }]
         };
       }
-    });
+    };
+
+    const config = {
+      title: definition.title,
+      description: definition.description,
+      inputSchema,
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false }
+    };
+
+    if (definition.app) {
+      registerAppTool(server, definition.name, {
+        ...config,
+        _meta: { ui: { resourceUri: TEMPO_APP_URI } }
+      }, handler);
+    } else {
+      server.registerTool(definition.name, config, handler);
+    }
   }
 }
 
