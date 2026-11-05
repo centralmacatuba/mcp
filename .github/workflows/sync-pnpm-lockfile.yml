@@ -14,8 +14,8 @@ concurrency:
 
 jobs:
   sync:
-    # Never commit directly to the protected default branch.
-    if: github.ref != 'refs/heads/principal'
+    # Only branch refs are valid targets; never push directly to principal or tags.
+    if: startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/principal'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -43,11 +43,9 @@ jobs:
             exit 1
           fi
 
-      # Creates pnpm-lock.yaml when absent and reconciles it with package.json.
       - name: Regenerate lockfile
         run: pnpm install --no-frozen-lockfile --ignore-scripts
 
-      # Verify that the generated lockfile is reproducible by CI/release installs.
       - name: Validate frozen lockfile
         run: pnpm install --frozen-lockfile --ignore-scripts
 
@@ -60,7 +58,6 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add -- pnpm-lock.yaml
           git commit -m "chore: sync pnpm lockfile"
           git push origin "HEAD:${GITHUB_REF_NAME}"
