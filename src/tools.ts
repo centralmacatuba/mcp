@@ -144,7 +144,16 @@ function jsonText(value: unknown): string {
 export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): void {
   for (const definition of tools) {
     const handler = async (rawArgs: unknown) => {
-      const args = (rawArgs ?? {}) as ToolQuery;
+      let args: ToolQuery;
+      try {
+        args = definition.inputSchema.parse(rawArgs ?? {}) as ToolQuery;
+      } catch {
+        return {
+          isError: true,
+          content: [{ type: "text" as const, text: "Os parâmetros informados não são válidos para esta ferramenta." }]
+        };
+      }
+
       try {
         // A rota é estática, os argumentos seguem schemas Zod derivados do OpenAPI,
         // e o SDK ainda valida a allowlist pública antes de enviar a requisição.
