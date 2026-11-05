@@ -47,7 +47,6 @@ export async function startHttpServer(): Promise<void> {
 
     const transport = new NodeStreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
-      enableJsonResponse: true,
       maxRequestBodySize: 1_048_576
     });
     const mcpServer = createMcpServer();
