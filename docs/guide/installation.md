@@ -4,23 +4,21 @@
 
 - Node.js 20 ou superior.
 - Um cliente compatível com Model Context Protocol.
-- Acesso ao pacote `@centralmacatuba/api` na versão compatível definida em `package.json`.
+- Acesso à versão compatível de `@centralmacatuba/api`, conforme declarada em `package.json`.
 
-## Instalação pelo npm
+## Instalação do pacote publicado
 
-```bash
-npm install @centralmacatuba/mcp
-```
-
-Ou com pnpm:
+Depois que `@centralmacatuba/mcp` e sua dependência pública `@centralmacatuba/api` estiverem disponíveis no npm:
 
 ```bash
 pnpm add @centralmacatuba/mcp
 ```
 
-O pacote fornece executáveis e módulos para os transportes STDIO e Streamable HTTP.
+O pacote fornece executáveis e módulos para os transportes STDIO e Streamable HTTP. O uso de outro gerenciador pelo consumidor também é possível, mas o desenvolvimento deste repositório é padronizado em pnpm 12.12.1.
 
-## Desenvolvimento local
+## Desenvolvimento a partir do código-fonte
+
+Enquanto os pacotes ainda não estiverem publicados, clone o repositório e siga as instruções de desenvolvimento:
 
 ```bash
 git clone https://github.com/centralmacatuba/mcp.git
@@ -31,4 +29,4 @@ pnpm test
 pnpm build
 ```
 
-O repositório utiliza pnpm 12.12.1. Durante o desenvolvimento integrado, a CI compila o SDK da API a partir da branch de desenvolvimento correspondente; consumidores devem utilizar a versão publicada indicada pelo pacote.
+A CI constrói a dependência `@centralmacatuba/api` a partir do repositório `centralmacatuba/api-sdk` durante a fase de desenvolvimento integrado. O consumidor do pacote publicado utilizará a versão do SDK indicada em `package.json`.
