@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PUBLIC_ENDPOINTS } from "@centralmacatuba/api";
 import {
+  createCalendarFileContent,
   registeredToolDefinitions,
   registeredToolNames,
   registeredToolSchemas
@@ -55,6 +56,11 @@ describe("public MCP tools", () => {
 
     expect(schema("calendario.verificar").safeParse({ data: "2026-11-05" }).success).toBe(true);
     expect(schema("calendario.verificar").safeParse({ data: "05/11/2026" }).success).toBe(false);
+    expect(schema("calendario.gerar").safeParse({ formato: "json" }).success).toBe(true);
+    expect(schema("calendario.gerar").safeParse({ formato: "pdf", ano: 2026 }).success).toBe(true);
+    expect(schema("calendario.gerar").safeParse({ formato: "png" }).success).toBe(true);
+    expect(schema("calendario.gerar").safeParse({ formato: "jpg" }).success).toBe(false);
+    expect(schema("calendario.gerar").safeParse({ ano: 0 }).success).toBe(false);
 
     expect(schema("servicos.pesquisar").safeParse({ termo: "Macatuba".repeat(30) }).success).toBe(false);
   });
@@ -104,5 +110,49 @@ describe("public MCP tools", () => {
     expect(find("servicos.listar")?.appUri).toBe("ui://centralmacatuba/servicos");
     expect(find("servicos_cursos.verificar")?.appUri).toBe("ui://centralmacatuba/cursos");
     expect(find("sos.listar")?.appUri).toBe("ui://centralmacatuba/sos");
+  });
+});
+
+
+describe("calendar binary tool content", () => {
+  it("returns PDF as a named embedded MCP resource with its MIME type", async () => {
+    const content = await createCalendarFileContent(
+      new Blob(["%PDF-test"], { type: "application/pdf" }),
+      2026
+    );
+    expect(content).toHaveLength(1);
+    expect(content[0]).toEqual({
+      type: "resource",
+      resource: {
+        uri: "urn:centralmacatuba:calendario:calendario-2026.pdf",
+        mimeType: "application/pdf",
+        blob: Buffer.from("%PDF-test").toString("base64")
+      }
+    });
+  });
+
+  it("returns PNG as renderable image content and a named embedded resource", async () => {
+    const bytes = new Uint8Array([137, 80, 78, 71]);
+    const content = await createCalendarFileContent(
+      new Blob([bytes], { type: "image/png" }),
+      2025
+    );
+    expect(content).toHaveLength(2);
+    expect(content[0]).toMatchObject({ type: "image", mimeType: "image/png" });
+    expect(content[1]).toMatchObject({
+      type: "resource",
+      resource: {
+        uri: "urn:centralmacatuba:calendario:calendario-2025.png",
+        mimeType: "image/png"
+      }
+    });
+  });
+
+  it("rejects unsupported media types and oversized files", async () => {
+    await expect(createCalendarFileContent(new Blob(["x"], { type: "text/plain" })))
+      .rejects.toThrow("Formato binário de calendário não suportado.");
+    await expect(createCalendarFileContent(
+      new Blob([new Uint8Array(8 * 1024 * 1024 + 1)], { type: "application/pdf" })
+    )).rejects.toThrow("excedeu o limite");
   });
 });
