@@ -76,7 +76,7 @@ Consulte [configuração de clientes](docs/clientes.md) para exemplos de conexã
 
 ## MCP Apps
 
-A primeira integração usa o SDK oficial `@modelcontextprotocol/ext-apps` e associa a ferramenta `tempo.listar` ao recurso `ui://centralmacatuba/tempo.html`. Clientes compatíveis recebem um painel interativo com atualização sob demanda; clientes sem suporte a Apps continuam recebendo a resposta textual normal da ferramenta. A interface é empacotada em um único HTML durante o build. A integração pode ser ampliada para outras ferramentas que tenham uma experiência visual útil, mantendo o fallback textual para todos os clientes.
+As interfaces usam o SDK oficial `@modelcontextprotocol/ext-apps` e são associadas às ferramentas correspondentes: Tempo, Serviços, Mapa, Jornal, Informações, Cursos e SOS. Cada interface é empacotada em um HTML autocontido, sem depender de CDN em tempo de execução. Clientes compatíveis recebem uma experiência interativa; clientes sem suporte a Apps continuam recebendo conteúdo textual e `structuredContent` das ferramentas.
 
 ## Transporte e migração
 
@@ -94,7 +94,7 @@ pnpm test
 pnpm build
 ```
 
-A CI usa pnpm 12.12.1. O lockfile será versionado assim que a resolução das dependências puder ser executada com o SDK público disponível. O build compila o servidor e empacota a interface MCP App em `dist/apps/tempo.html`.
+A CI usa pnpm 12.12.1. O lockfile será versionado assim que a resolução das dependências puder ser executada com o SDK público disponível. O build compila o servidor e empacota as sete interfaces em `dist/apps/`.
 
 ## Projeto e licença
 
