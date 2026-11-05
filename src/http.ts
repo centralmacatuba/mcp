@@ -3,6 +3,7 @@ import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { loadConfig } from "./config.js";
 import { createMcpServer } from "./server.js";
 
+/** Extracts a normalized hostname from the incoming HTTP Host header. */
 function requestHost(request: IncomingMessage): string | undefined {
   const raw = request.headers.host;
   if (!raw) return undefined;
@@ -14,11 +15,13 @@ function requestHost(request: IncomingMessage): string | undefined {
   }
 }
 
+/** Sends a small JSON error response without caching it. */
 function reject(response: ServerResponse, status: number, message: string): void {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
   response.end(JSON.stringify({ error: message }));
 }
 
+/** Starts the stateless Streamable HTTP transport on the configured listener. */
 export async function startHttpServer(): Promise<void> {
   const config = loadConfig();
   const httpServer = createServer(async (request, response) => {
