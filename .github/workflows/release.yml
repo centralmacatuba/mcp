@@ -48,7 +48,7 @@ jobs:
           npm --version | awk -F. '{ if ($1 < 11 || ($1 == 11 && $2 < 5) || ($1 == 11 && $2 == 5 && $3 < 1)) exit 1 }'
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile # pnpm-lock.yaml is generated after @centralmacatuba/api@0.1.0 is published
 
       - name: Typecheck
         run: pnpm typecheck
@@ -82,4 +82,5 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm config set //npm.pkg.github.com/:_authToken "$NODE_AUTH_TOKEN" --location=user
-          npm publish --registry=https://npm.pkg.github.com
+          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.publishConfig={...p.publishConfig,registry:'https://npm.pkg.github.com'};fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
+          npm publish
