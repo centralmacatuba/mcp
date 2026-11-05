@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { createApiClient } from "./api.js";
 import { registerApiTools } from "./tools.js";
+import { registerTempoAppResource } from "./apps.js";
 
 export function createMcpServer() {
   const server = new McpServer({
@@ -11,6 +12,7 @@ export function createMcpServer() {
     capabilities: { tools: {} }
   });
 
+  registerTempoAppResource(server);
   registerApiTools(server, createApiClient());
   return server;
 }
