@@ -41,13 +41,13 @@ const filterMap = queryInput(z.object({
 }).refine((value) => Object.values(value).some((item) => item !== undefined && item.trim().length > 0), "Informe ao menos um filtro."));
 const searchLinks = queryInput(z.object({ termo: text.optional() }));
 const verifyLinks = queryInput(z.object({
-  funcao: z.enum(["tudo", "uma", "pendentes"]).optional(),
+  funcao: z.enum(["tudo", "uma"]).optional(),
   id: positiveId.optional()
-}));
+}).refine((value) => value.funcao !== "uma" || value.id !== undefined, "Informe id quando funcao=uma."));
 const verifyItems = queryInput(z.object({
   funcao: z.enum(["tudo", "uma"]).optional(),
-  id: z.number().int().optional()
-}));
+  id: positiveId.optional()
+}).refine((value) => value.funcao !== "uma" || value.id !== undefined, "Informe id quando funcao=uma."));
 const searchCourses = queryInput(z.object({
   q: text.optional(),
   categoria: text.optional(),
@@ -83,7 +83,7 @@ const verifyStreaming = queryInput(z.object({
   tipo: z.enum(streamingTypes),
   funcao: z.enum(["tudo", "uma"]).optional(),
   id: positiveId.optional()
-}));
+}).refine((value) => value.funcao !== "uma" || value.id !== undefined, "Informe id quando funcao=uma."));
 const serviceByIdOrName = queryInput(z.object({
   id: z.number().int().optional(),
   nome: text.optional()
@@ -112,7 +112,7 @@ const tools: ToolDefinition[] = [
   { name: "jornal.obter", title: "Obter notícia", description: "Obtém uma notícia pública pelo ID.", endpoint: "/api/jornal/verificar", inputSchema: journalById, fixedQuery: { funcao: "uma" } },
   { name: "jornal.pesquisar", title: "Pesquisar no Jornal", description: "Pesquisa publicações no Jornal Macatuba. q é obrigatório; filtro restringe o campo pesquisado.", endpoint: "/api/jornal/pesquisar", inputSchema: searchJournal },
   { name: "links.pesquisar", title: "Pesquisar links", description: "Pesquisa links públicos catalogados pela Central Macatuba pelo termo informado.", endpoint: "/api/links/pesquisar", inputSchema: searchLinks },
-  { name: "links.verificar", title: "Verificar links", description: "Consulta o catálogo de links, podendo filtrar por função e id.", endpoint: "/api/links/verificar", inputSchema: verifyLinks },
+  { name: "links.verificar", title: "Verificar links", description: "Consulta links públicos ativos ou um link por ID. Solicitações pendentes não são expostas por esta ferramenta.", endpoint: "/api/links/verificar", inputSchema: verifyLinks },
   { name: "mapa.listar", appUri: "ui://centralmacatuba/mapa", title: "Listar pontos do mapa", description: "Lista pontos e locais do Mapa Macatuba; aceita filtros opcionais por tipo, criador e verificação.", endpoint: "/api/mapa/verificar", inputSchema: mapList },
   { name: "mapa.filtrar", title: "Filtrar pontos do mapa", description: "Filtra pontos do mapa por tipo, criador ou estado de verificação. Informe ao menos um filtro.", endpoint: "/api/mapa/verificar", inputSchema: filterMap },
   { name: "mapa.pesquisar", title: "Pesquisar no mapa", description: "Pesquisa locais no Mapa Macatuba. q é obrigatório; filtro restringe o campo.", endpoint: "/api/mapa/pesquisar", inputSchema: searchMap },
