@@ -59,6 +59,12 @@ jobs:
       - name: Tests
         run: pnpm test
 
+      - name: Documentation tests
+        run: pnpm docs:test
+
+      - name: Documentation build
+        run: pnpm docs:build
+
       - name: Build
         run: pnpm build
 
