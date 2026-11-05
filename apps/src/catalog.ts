@@ -9,12 +9,17 @@ const raw = document.querySelector<HTMLElement>("#raw");
 const button = document.querySelector<HTMLButtonElement>("#load");
 const app = new App({ name: appName, version: "1.0.0" });
 
+/** Updates the status text and state when the status element exists. */
 function setStatus(message: string, state: "idle" | "success" | "error" = "idle"): void {
   if (!status) return;
   status.textContent = message;
   status.dataset.state = state;
 }
 
+/**
+ * Uses structured content when present, otherwise returns the response itself.
+ * Throws for tool error responses, using their text content or a fallback message.
+ */
 function extractPayload(response: any): unknown {
   if (response?.isError) {
     const message = response.content?.filter((item: any) => item.type === "text").map((item: any) => item.text).join("\n");
@@ -23,6 +28,11 @@ function extractPayload(response: any): unknown {
   return response?.structuredContent ?? response;
 }
 
+/**
+ * Builds a detached text-only view, limiting expanded collections to 100 entries.
+ * depth counts nesting from zero; objects at depth five or greater become JSON text.
+ * JSON serialization errors, such as circular references at that boundary, propagate.
+ */
 function renderValue(value: unknown, depth = 0): HTMLElement {
   if (value === null || value === undefined) {
     const empty = document.createElement("p");
@@ -76,6 +86,10 @@ function renderValue(value: unknown, depth = 0): HTMLElement {
   return object;
 }
 
+/**
+ * Replaces results, updates raw output when present, and marks the query successful.
+ * Does nothing without a results element; tool errors and serialization failures propagate.
+ */
 function render(response: unknown): void {
   if (!results) return;
   const value = extractPayload(response);
@@ -84,6 +98,11 @@ function render(response: unknown): void {
   setStatus("Consulta concluída.", "success");
 }
 
+/**
+ * Calls the configured tool with nonempty trimmed form values, converting numeric fields.
+ * Disables the button during the request and restores it afterward; request and rendering
+ * failures show a generic error status. Does nothing without a tool name or button.
+ */
 async function runTool(): Promise<void> {
   if (!toolName || !button) return;
   button.disabled = true;

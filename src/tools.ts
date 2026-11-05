@@ -139,7 +139,12 @@ const tools: ToolDefinition[] = [
 ];
 
 
-/** Converts a validated calendar PDF/PNG Blob into MCP resource content. */
+/**
+ * Encodes a calendar PDF or PNG as a base64 embedded resource; PNG also yields image content.
+ * ano labels the resource filename, defaulting to "gerado" when omitted.
+ *
+ * @throws If the MIME type is unsupported, the file exceeds 8 MiB, or reading its bytes fails.
+ */
 export async function createCalendarFileContent(blob: Blob, ano?: number) {
   const mimeType = blob.type.split(";")[0]?.trim().toLowerCase();
   if (mimeType !== "application/pdf" && mimeType !== "image/png") {
@@ -176,7 +181,12 @@ function jsonText(value: unknown): string {
   return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : item, 2) ?? String(value);
 }
 
-/** Registers the read-only API tool allowlist with schema validation and bounded responses. */
+/**
+ * Registers the read-only API tool allowlist with schema validation and bounded responses.
+ * Handlers return text and structured data, or embedded calendar files for PDF/PNG.
+ * Invalid arguments, API failures, and oversized or unsupported results become
+ * isError responses; API failures omit error details except a numeric HTTP status.
+ */
 export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): void {
   for (const definition of tools) {
     const handler = async (rawArgs: unknown) => {
