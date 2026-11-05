@@ -17,7 +17,7 @@ function markdownFiles(directory: string): string[] {
 
 function links(source: string): string[] {
   const clean = source.replace(/^```[\s\S]*?^```\s*$/gm, "").replace(/`[^`]*`/g, "");
-  return Array.from(clean.matchAll(/!?\[[^\]]*\]\(([^)]+)\)/g), (match) => match[1].trim().split(/[?#]/, 1)[0]);
+  return Array.from(clean.matchAll(/!?\[[^\]]*\]\(([^)]+)\)/g), (match) => (match[1] ?? "").trim().split(/[?#]/, 1)[0] ?? "");
 }
 
 describe("MCP documentation", () => {
