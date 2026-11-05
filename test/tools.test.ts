@@ -53,16 +53,23 @@ describe("public MCP tools", () => {
     expect(schema("servicos.pesquisar").safeParse({ termo: "Macatuba".repeat(30) }).success).toBe(false);
   });
 
-  it("preserves optional map filters and validates filter mode", () => {
+  it("preserves optional map listing filters and requires at least one filter when filtering", () => {
     expect(schema("mapa.listar").safeParse({}).success).toBe(true);
     expect(schema("mapa.listar").safeParse({ tipo: "praça" }).success).toBe(true);
     expect(schema("mapa.filtrar").safeParse({ tipo: "praça" }).success).toBe(true);
-    expect(schema("mapa.filtrar").safeParse({}).success).toBe(true);
+    expect(schema("mapa.filtrar").safeParse({ criador: "Central" }).success).toBe(true);
+    expect(schema("mapa.filtrar").safeParse({ verificado: "sim" }).success).toBe(true);
+    expect(schema("mapa.filtrar").safeParse({}).success).toBe(false);
+    expect(schema("mapa.filtrar").safeParse({ tipo: " " }).success).toBe(false);
   });
 
   it("requires identifying fields for lookup tools", () => {
     expect(schema("servicos.obter").safeParse({ id: 3 }).success).toBe(true);
+    expect(schema("servicos.obter").safeParse({ id: -1 }).success).toBe(false);
     expect(schema("servicos.obter").safeParse({}).success).toBe(false);
+    expect(schema("servicos_jogos.verificar").safeParse({ slug: "jogo-exemplo" }).success).toBe(true);
+    expect(schema("servicos_jogos.verificar").safeParse({}).success).toBe(false);
+    expect(schema("servicos_jogos.verificar").safeParse({ id: 0 }).success).toBe(false);
     expect(schema("paginas.verificar").safeParse({ id: 12 }).success).toBe(true);
     expect(schema("paginas.verificar").safeParse({}).success).toBe(false);
     expect(schema("sos.listar").safeParse({}).success).toBe(true);
