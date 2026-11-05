@@ -9,23 +9,52 @@
     "url": "git+https://github.com/centralmacatuba/mcp.git"
   },
   "homepage": "https://github.com/centralmacatuba/mcp#readme",
-  "bugs": { "url": "https://github.com/centralmacatuba/mcp/issues" },
-  "keywords": ["centralmacatuba", "mcp", "model-context-protocol", "typescript", "api"],
+  "bugs": {
+    "url": "https://github.com/centralmacatuba/mcp/issues"
+  },
+  "keywords": [
+    "centralmacatuba",
+    "mcp",
+    "model-context-protocol",
+    "typescript",
+    "api"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./http": { "types": "./dist/http.d.ts", "import": "./dist/http.js" },
-    "./stdio": { "types": "./dist/stdio.d.ts", "import": "./dist/stdio.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "import": "./dist/http.js"
+    },
+    "./stdio": {
+      "types": "./dist/stdio.d.ts",
+      "import": "./dist/stdio.js"
+    }
   },
-  "bin": { "centralmacatuba-mcp": "./dist/cli.js" },
-  "files": ["dist", "README.md", "LICENSE", "docs"],
+  "bin": {
+    "centralmacatuba-mcp": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "docs"
+  ],
   "sideEffects": false,
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "packageManager": "pnpm@12.12.1",
-  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
@@ -37,8 +66,9 @@
   },
   "dependencies": {
     "@centralmacatuba/api": "^0.1.0",
-    "@modelcontextprotocol/sdk": "^1.25.2",
-    "zod": "^3.25.76"
+    "zod": "^4.2.0",
+    "@modelcontextprotocol/server": "^2.4.0",
+    "@modelcontextprotocol/node": "^2.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.19.0",
