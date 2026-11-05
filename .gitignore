@@ -5,3 +5,7 @@ coverage/
 .env.*
 !.env.example
 .DS_Store
+
+# VitePress documentation build/cache
+docs/.vitepress/cache/
+docs/.vitepress/dist/
