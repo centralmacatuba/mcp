@@ -42,13 +42,27 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `servicos_streaming.verificar` | `servicos.streaming.verificar()` | Exige tipo válido |
 | `servicos_streaming.live_verificar` | `servicos.streaming.live.verificar()` | Consulta transmissões ao vivo e agendadas |
 | `sos.listar` | `sos.listarAlertas()` | Consulta alertas públicos; não encaminha cookies de navegador |
-| `tempo.listar` | `tempo.verificar()` | Também possui MCP App |
+| `tempo.listar` | `tempo.verificar()` | MCP App Tempo |
+
+## MCP Apps associados
+
+| Recurso UI | Ferramenta |
+| --- | --- |
+| `ui://centralmacatuba/tempo` | `tempo.listar` |
+| `ui://centralmacatuba/servicos` | `servicos.listar` |
+| `ui://centralmacatuba/mapa` | `mapa.listar` |
+| `ui://centralmacatuba/jornal` | `jornal.listar` |
+| `ui://centralmacatuba/informacoes` | `informacoes.listar` |
+| `ui://centralmacatuba/cursos` | `servicos_cursos.verificar` |
+| `ui://centralmacatuba/sos` | `sos.listar` |
+
+As sete interfaces são empacotadas como HTML autocontido durante o build. Seus scripts usam o pacote oficial de MCP Apps incluído nas dependências do servidor, sem carregar bibliotecas de terceiros por CDN em tempo de execução.
 
 ## Compatibilidade de argumentos
 
 Os nomes das ferramentas e os argumentos são mantidos no nível superior, sempre que compatíveis com a operação pública. Os schemas Zod validam os campos antes de chamar o SDK. Campos fixos como `funcao=tudo`, `funcao=uma` e `funcao=pesquisar` são definidos pelo servidor, não pelo cliente, para que a ferramenta mantenha o significado anunciado.
 
-As ferramentas de lista que historicamente aceitavam filtros continuam aceitando-os. Em particular, `mapa.listar` aceita `tipo`, `criador` e `verificado`; `mapa.filtrar` exige ao menos um deles.
+As ferramentas de lista que historicamente aceitavam filtros continuam aceitando-os. Em particular, `mapa.listar` e `mapa.filtrar` aceitam `tipo`, `criador` e `verificado`, todos opcionais.
 
 A ferramenta `paginas.verificar` requer um id explícito no servidor MCP. O contexto HTTP de um cliente MCP não é o mesmo contexto de Host/path de um navegador, portanto o servidor não tenta inferir a página atual do cliente.
 
