@@ -1,0 +1,50 @@
+{
+  "name": "@centralmacatuba/mcp",
+  "version": "0.1.0",
+  "description": "Servidor MCP oficial da Central Macatuba, integrado ao SDK da API pública.",
+  "license": "MIT",
+  "author": "Desenvolvedor EE (Dev EE)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/centralmacatuba/mcp.git"
+  },
+  "homepage": "https://github.com/centralmacatuba/mcp#readme",
+  "bugs": { "url": "https://github.com/centralmacatuba/mcp/issues" },
+  "keywords": ["centralmacatuba", "mcp", "model-context-protocol", "typescript", "api"],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./http": { "types": "./dist/http.d.ts", "import": "./dist/http.js" },
+    "./stdio": { "types": "./dist/stdio.d.ts", "import": "./dist/stdio.js" }
+  },
+  "bin": { "centralmacatuba-mcp": "./dist/cli.js" },
+  "files": ["dist", "README.md", "LICENSE", "docs"],
+  "sideEffects": false,
+  "engines": { "node": ">=20" },
+  "packageManager": "pnpm@12.12.1",
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node dist/cli.js --transport stdio",
+    "start:http": "node dist/cli.js --transport http",
+    "dev": "tsx src/cli.ts --transport stdio"
+  },
+  "dependencies": {
+    "@centralmacatuba/api": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.12"
+  }
+}
