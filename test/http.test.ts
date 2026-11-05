@@ -195,7 +195,7 @@ describe("HTTP transport startup and shutdown", () => {
       await startHttpServer();
       const handler = process.listeners(signal).find((listener) => !originalListeners.includes(listener));
       expect(handler).toBeDefined();
-      handler?.();
+      handler?.(signal);
       expect(mocks.closeHttp).toHaveBeenCalledOnce();
       expect(exitSpy).toHaveBeenCalledWith(0);
     } finally {
