@@ -11,7 +11,7 @@ A regra de migração é restritiva: uma ferramenta só pode ser implementada qu
 | `ping` | `/` | Coberta com o mesmo nome |
 | `avisos.verificar` | `/api/avisos/verificar` | Coberta |
 | `calendario.verificar` | `/api/calendario/verificar` | Coberta |
-| `calendario.gerar` | `/api/calendario/gerar` | Endpoint público binário; ferramenta MCP ainda não exposta |
+| `calendario.gerar` | `/api/calendario/gerar` | Coberta somente no formato JSON; PDF/PNG ficam fora desta ferramenta inicial |
 | `dominios.verificar` | `/api/dominios/verificar` | Coberta |
 | `informacoes.listar` / `informacoes.obter` | `/api/informacoes/verificar` | Reavaliar semântica e parâmetros antes de prometer paridade |
 | `informacoes.pesquisar` | `/api/informacoes/pesquisar` | Coberta |
@@ -27,19 +27,20 @@ A regra de migração é restritiva: uma ferramenta só pode ser implementada qu
 | `servicos_docs.*` | `/api/servicos/docs/*` | Cobertas |
 | `servicos_jogos.*` | `/api/servicos/jogos/*` | Cobertas |
 | `servicos_streaming.*` | `/api/servicos/streaming/*` | Cobertas |
-| `sos.listar` | `/api/sos/listar_alertas` | Coberta; depende das permissões públicas previstas pelo endpoint |
+| `sos.listar` | `/api/sos/listar_alertas` | Não exposta: depende de cookie de permissão gerenciado pelo navegador; não será substituído por credencial interna no processo MCP |
 | `tempo.listar` | `/api/tempo/verificar` | Coberta como consulta; validar parâmetros opcionais |
 
 ## Ferramentas já registradas na primeira implementação
 
-A primeira implementação registra consultas públicas para: `ping`, `avisos.verificar`, `calendario.verificar`, `dominios.verificar`, `informacoes.pesquisar`, `informacoes.verificar`, `jornal.pesquisar`, `jornal.verificar`, `links.pesquisar`, `links.verificar`, `mapa.pesquisar`, `mapa.verificar`, `novidades.pesquisar`, `novidades.verificar`, `paginas.pesquisar`, `paginas.verificar`, `redicionador.verificar`, `servicos.verificar`, operações de cursos/docs/jogos/streaming, `sos.listar` e `tempo.listar`.
+A primeira implementação registra consultas públicas para: `ping`, `avisos.verificar`, `calendario.verificar`, `dominios.verificar`, `informacoes.pesquisar`, `informacoes.verificar`, `jornal.pesquisar`, `jornal.verificar`, `links.pesquisar`, `links.verificar`, `mapa.pesquisar`, `mapa.verificar`, `novidades.pesquisar`, `novidades.verificar`, `paginas.pesquisar`, `paginas.verificar`, `redicionador.verificar`, `servicos.verificar`, operações de cursos/docs/jogos/streaming e `tempo.listar`. A ferramenta `tempo.listar` também está associada ao primeiro MCP App.
 
-Os nomes antigos são mantidos quando existe correspondência clara. A interface de argumentos foi normalizada: endpoints com parâmetros recebem um objeto `query`, validado por schema. Isso é uma mudança de formato em relação aos parâmetros de topo do manifesto antigo e deverá ser documentado na migração.
+Os nomes antigos são mantidos quando existe correspondência clara. Os parâmetros são definidos individualmente a partir do OpenAPI (incluindo enums, tipos, campos obrigatórios, limites e formato de data/URL). A interface de argumentos foi normalizada: endpoints com parâmetros recebem um objeto `query`, validado por schema. Isso é uma mudança de formato em relação aos parâmetros de topo do manifesto antigo e deverá ser documentado na migração.
 
 ## Fora da nova implementação por enquanto
 
 - `comunicacao.pesquisar` e `comunicacao.verificar`: não há operação correspondente no contrato/allowlist do SDK.
 - `newsletter.verificar`: não há operação correspondente no contrato/allowlist do SDK.
+- `sos.listar`: o endpoint público exige o cookie de permissão `centralmacatuba_sos-permissao`, gerenciado pelo navegador; o servidor MCP Node não recebe nem armazena esse cookie e não usará credenciais privadas como substituto.
 - `paginas.listar` e `paginas.listar_dominios`: o wrapper PHP chama `/api/paginas/gerenciar.php` por POST, operação administrativa que não pertence ao SDK público.
 - `status.verificar` e `tags.verificar`: não há operação correspondente no SDK.
 - `servicos_wiki.*`: manter a responsabilidade da integração especializada `centralmacatuba/wiki-mcp`; não duplicar neste pacote sem decisão arquitetural.
