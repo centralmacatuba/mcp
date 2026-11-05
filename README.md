@@ -72,6 +72,8 @@ As ferramentas iniciais são somente leitura e mapeiam para endpoints presentes 
 
 Ferramentas com parâmetros recebem um objeto `query`, validado com os campos, tipos, enums e obrigatoriedades definidos no OpenAPI. Campos de texto são limitados a 2.048 caracteres e respostas MCP a 100.000 caracteres. O servidor não aceita caminhos arbitrários nem nomes de endpoint fornecidos pelo cliente.
 
+Consulte [configuração de clientes](docs/clientes.md) para exemplos de conexão via STDIO e Streamable HTTP.
+
 ## MCP Apps
 
 A primeira integração usa o SDK oficial `@modelcontextprotocol/ext-apps` e associa a ferramenta `tempo.listar` ao recurso `ui://centralmacatuba/tempo.html`. Clientes compatíveis recebem um painel interativo com atualização sob demanda; clientes sem suporte a Apps continuam recebendo a resposta textual normal da ferramenta. A interface é empacotada em um único HTML durante o build. A integração pode ser ampliada para outras ferramentas conforme a iniciativa [centralmacatuba/site#7](https://github.com/centralmacatuba/site/issues/7).
