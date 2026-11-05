@@ -79,6 +79,14 @@ describe("public MCP tools", () => {
     expect(schema("paginas.verificar").safeParse({ id: 12 }).success).toBe(true);
     expect(schema("paginas.verificar").safeParse({}).success).toBe(false);
     expect(schema("sos.listar").safeParse({}).success).toBe(true);
+    expect(schema("links.verificar").safeParse({ funcao: "tudo" }).success).toBe(true);
+    expect(schema("links.verificar").safeParse({ funcao: "uma", id: 4 }).success).toBe(true);
+    expect(schema("links.verificar").safeParse({ funcao: "uma" }).success).toBe(false);
+    expect(schema("links.verificar").safeParse({ funcao: "pendentes" }).success).toBe(false);
+    expect(schema("novidades.verificar").safeParse({ funcao: "uma", id: 4 }).success).toBe(true);
+    expect(schema("novidades.verificar").safeParse({ funcao: "uma" }).success).toBe(false);
+    expect(schema("servicos_streaming.verificar").safeParse({ tipo: "radio", funcao: "uma", id: 4 }).success).toBe(true);
+    expect(schema("servicos_streaming.verificar").safeParse({ tipo: "radio", funcao: "uma" }).success).toBe(false);
   });
 
   it("locks list/get/search operations to their intended public query parameters", () => {
