@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PUBLIC_ENDPOINTS } from "@centralmacatuba/api";
 import {
   registeredToolDefinitions,
   registeredToolNames,
@@ -27,6 +28,11 @@ describe("public MCP tools", () => {
       "servicos_streaming.pesquisar", "servicos_streaming.verificar",
       "servicos_streaming.live_verificar", "sos.listar", "tempo.listar"
     ]) expect(registeredToolNames).toContain(name);
+  });
+
+  it("uses only endpoints in the public SDK allowlist", () => {
+    const allowed = new Set<string>(PUBLIC_ENDPOINTS);
+    for (const tool of registeredToolDefinitions) expect(allowed.has(tool.endpoint)).toBe(true);
   });
 
   it("does not expose administrative or unsupported operations", () => {
