@@ -98,7 +98,7 @@ interface ToolDefinition {
 const tools: ToolDefinition[] = [
   { name: "ping", title: "Verificar disponibilidade", description: "Verifica a disponibilidade do gateway público da Central Macatuba.", endpoint: "/", inputSchema: noInput },
   { name: "avisos.verificar", title: "Consultar avisos", description: "Consulta avisos ativos publicados pela Central Macatuba.", endpoint: "/api/avisos/verificar", inputSchema: noInput },
-  { name: "calendario.verificar", title: "Consultar calendário", description: "Consulta o calendário público. data, quando informada, deve usar AAAA-MM-DD.", endpoint: "/api/calendario/verificar", inputSchema: queryInput(z.object({ data: text.regex(/^\\d{4}-\\d{2}-\\d{2}$/).optional() })) },
+  { name: "calendario.verificar", title: "Consultar calendário", description: "Consulta o calendário público. data, quando informada, deve usar AAAA-MM-DD.", endpoint: "/api/calendario/verificar", inputSchema: queryInput(z.object({ data: text.regex(/^\d{4}-\d{2}-\d{2}$/).optional() })) },
   { name: "calendario.gerar", title: "Gerar calendário em JSON", description: "Gera os dados JSON do calendário. PDF e PNG não são disponibilizados por esta ferramenta.", endpoint: "/api/calendario/gerar", inputSchema: queryInput(z.object({ ano: z.number().int().min(1).max(9999).optional(), formato: z.literal("json").optional() })) },
   { name: "dominios.verificar", title: "Verificar domínios", description: "Consulta informações públicas de domínios disponibilizadas pela API.", endpoint: "/api/dominios/verificar", inputSchema: noInput },
   { name: "informacoes.listar", title: "Listar informações", description: "Lista as informações públicas cadastradas.", endpoint: "/api/informacoes/verificar", inputSchema: noInput, fixedQuery: { funcao: "tudo" } },
