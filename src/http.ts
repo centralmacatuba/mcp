@@ -83,8 +83,15 @@ export async function startHttpServer(): Promise<void> {
   });
 
   await new Promise<void>((resolve, rejectPromise) => {
-    httpServer.once("error", rejectPromise);
-    httpServer.listen(config.httpPort, config.httpHost, () => resolve());
+    const onError = (error: Error) => {
+      httpServer.off("error", onError);
+      rejectPromise(error);
+    };
+    httpServer.once("error", onError);
+    httpServer.listen(config.httpPort, config.httpHost, () => {
+      httpServer.off("error", onError);
+      resolve();
+    });
   });
 
   const shutdown = () => {
