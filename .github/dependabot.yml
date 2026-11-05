@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    assignees:
+      - centralmacatuba
+      - desenvolvedor-ee
+      - desenvolvedoree-bot
     groups:
       production-dependencies:
         dependency-type: production
@@ -15,3 +19,7 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    assignees:
+      - centralmacatuba
+      - desenvolvedor-ee
+      - desenvolvedoree-bot
