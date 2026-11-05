@@ -64,7 +64,7 @@
     "start": "node dist/cli.js --transport stdio",
     "start:http": "node dist/cli.js --transport http",
     "dev": "tsx src/cli.ts --transport stdio",
-    "build:apps": "vite build --config vite.apps.config.ts",
+    "build:apps": "tsx scripts/build-apps.ts",
     "prepack": "pnpm docs:generate && pnpm build",
     "release": "changeset publish",
     "docs:generate": "tsx scripts/generate-docs-reference.ts",
