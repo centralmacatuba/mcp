@@ -64,7 +64,7 @@ Endpoint: `http://localhost:3000/mcp`.
 | `MCP_ALLOWED_HOSTS` | localhost / loopback | Hosts HTTP permitidos, separados por vírgula |
 | `MCP_ALLOWED_ORIGINS` | vazio | Origens browser explicitamente permitidas; vazio rejeita requisições que enviem Origin |
 
-Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço. Não configure `X-API-KEY`, `X-CM-CLIENT-ID` ou `X-CM-REQUEST-TOKEN`: este servidor não precisa desses segredos e não deve recebê-los.
+Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço. O servidor usa somente as operações disponibilizadas pelo SDK público.
 
 ## Ferramentas
 
@@ -76,7 +76,7 @@ Consulte [configuração de clientes](docs/clientes.md) para exemplos de conexã
 
 ## MCP Apps
 
-A primeira integração usa o SDK oficial `@modelcontextprotocol/ext-apps` e associa a ferramenta `tempo.listar` ao recurso `ui://centralmacatuba/tempo.html`. Clientes compatíveis recebem um painel interativo com atualização sob demanda; clientes sem suporte a Apps continuam recebendo a resposta textual normal da ferramenta. A interface é empacotada em um único HTML durante o build. A integração pode ser ampliada para outras ferramentas conforme a iniciativa [centralmacatuba/site#7](https://github.com/centralmacatuba/site/issues/7).
+A primeira integração usa o SDK oficial `@modelcontextprotocol/ext-apps` e associa a ferramenta `tempo.listar` ao recurso `ui://centralmacatuba/tempo.html`. Clientes compatíveis recebem um painel interativo com atualização sob demanda; clientes sem suporte a Apps continuam recebendo a resposta textual normal da ferramenta. A interface é empacotada em um único HTML durante o build. A integração pode ser ampliada para outras ferramentas que tenham uma experiência visual útil, mantendo o fallback textual para todos os clientes.
 
 ## Transporte e migração
 
