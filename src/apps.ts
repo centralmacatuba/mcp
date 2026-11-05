@@ -3,27 +3,30 @@ import { fileURLToPath } from "node:url";
 import type { McpServer } from "@modelcontextprotocol/server";
 import { registerAppResource, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
 
-export const TEMPO_APP_URI = "ui://centralmacatuba/tempo.html";
+export const APP_RESOURCES = [
+  { name: "Tempo Macatuba", uri: "ui://centralmacatuba/tempo", file: "tempo.html", description: "Painel interativo de dados climáticos." },
+  { name: "Serviços Macatuba", uri: "ui://centralmacatuba/servicos", file: "servicos.html", description: "Catálogo interativo de serviços públicos." },
+  { name: "Mapa Macatuba", uri: "ui://centralmacatuba/mapa", file: "mapa.html", description: "Consulta interativa de pontos e locais." },
+  { name: "Jornal Macatuba", uri: "ui://centralmacatuba/jornal", file: "jornal.html", description: "Leitura das notícias publicadas." },
+  { name: "Informações Macatuba", uri: "ui://centralmacatuba/informacoes", file: "informacoes.html", description: "Consulta de informações públicas." },
+  { name: "Cursos - Serviços Macatuba", uri: "ui://centralmacatuba/cursos", file: "cursos.html", description: "Consulta de cursos e conteúdos educacionais." },
+  { name: "SOS Macatuba", uri: "ui://centralmacatuba/sos", file: "sos.html", description: "Consulta informativa de alertas e orientações públicas." }
+] as const;
 
-export function registerTempoAppResource(server: McpServer): void {
-  registerAppResource(
-    server,
-    "Tempo Macatuba",
-    TEMPO_APP_URI,
-    {
-      description: "Painel interativo para visualizar a resposta do serviço Tempo Macatuba.",
-      mimeType: RESOURCE_MIME_TYPE
-    },
-    async () => {
-      const htmlPath = fileURLToPath(new URL("./apps/tempo.html", import.meta.url));
-      const html = await readFile(htmlPath, "utf8");
-      return {
-        contents: [{
-          uri: TEMPO_APP_URI,
-          mimeType: RESOURCE_MIME_TYPE,
-          text: html
-        }]
-      };
-    }
-  );
+export type AppResourceUri = (typeof APP_RESOURCES)[number]["uri"];
+
+export function registerAppResources(server: McpServer): void {
+  for (const resource of APP_RESOURCES) {
+    registerAppResource(
+      server,
+      resource.name,
+      resource.uri,
+      { description: resource.description, mimeType: RESOURCE_MIME_TYPE },
+      async () => {
+        const htmlPath = fileURLToPath(new URL(`./apps/${resource.file}`, import.meta.url));
+        const html = await readFile(htmlPath, "utf8");
+        return { contents: [{ uri: resource.uri, mimeType: RESOURCE_MIME_TYPE, text: html }] };
+      }
+    );
+  }
 }
