@@ -41,7 +41,7 @@ A instalação completa e a validação de integração dependem de `@centralmac
 STDIO (padrão para clientes MCP locais):
 
 ```bash
-npx centralmacatuba-mcp --transport stdio
+npx @centralmacatuba/mcp --transport stdio
 ```
 
 Streamable HTTP:
