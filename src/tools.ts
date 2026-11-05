@@ -74,7 +74,10 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
           query?: Record<string, string | number | boolean | Array<string | number | boolean>>
         ) => Promise<unknown>;
         const query = "query" in args ? args.query : undefined;
-        const result = await request(definition.endpoint, query ?? {});
+        const result = await request(
+          definition.endpoint,
+          (query ?? {}) as Record<string, string | number | boolean | Array<string | number | boolean>>
+        );
         if (result instanceof Blob) {
           return {
             isError: true,
