@@ -4,8 +4,9 @@ import * as z from "zod/v4";
 import { TEMPO_APP_URI } from "./apps.js";
 import type { CentralMacatubaSDK, PublicEndpoint } from "@centralmacatuba/api";
 
-const text = z.string();
+const text = z.string().max(2048);
 const positiveId = z.number().int().positive();
+const MAX_TOOL_OUTPUT_CHARS = 100_000;
 const queryInput = (schema: z.ZodObject<any>, required = false) =>
   z.object({ query: required ? schema : schema.optional() });
 const noInput = z.object({});
@@ -109,7 +110,7 @@ const tools: ToolDefinition[] = [
   { name: "novidades.verificar", title: "Verificar novidades", description: "Consulta novidades por função e, opcionalmente, id.", endpoint: "/api/novidades/verificar", inputSchema: verifyItems },
   { name: "paginas.pesquisar", title: "Pesquisar páginas", description: "Pesquisa páginas públicas catalogadas pela Central Macatuba.", endpoint: "/api/paginas/pesquisar", inputSchema: queryInput(z.object({ q: text.optional() })) },
   { name: "paginas.verificar", title: "Verificar páginas", description: "Consulta o catálogo público de páginas, opcionalmente por id.", endpoint: "/api/paginas/verificar", inputSchema: queryInput(z.object({ id: z.number().int().optional() })) },
-  { name: "redicionador.verificar", title: "Verificar redirecionador", description: "Verifica se o slug derivado do parâmetro url existe e se o domínio do cliente está autorizado.", endpoint: "/api/redicionador/verificar", inputSchema: queryInput(z.object({ url: text.min(1).max(2048) }), true) },
+  { name: "redicionador.verificar", title: "Verificar redirecionador", description: "Verifica se o slug derivado do parâmetro url existe e se o domínio do cliente está autorizado.", endpoint: "/api/redicionador/verificar", inputSchema: queryInput(z.object({ url: text.min(1) }), true) },
   { name: "servicos.verificar", title: "Verificar serviços", description: "Consulta o catálogo público de Serviços Macatuba, com filtros de função, id, nome ou termo.", endpoint: "/api/servicos/verificar", inputSchema: queryInput(z.object({ funcao: z.enum(["tudo", "uma", "pesquisar"]).optional(), id: z.number().int().optional(), nome: text.optional(), termo: text.optional() })) },
   { name: "servicos_cursos.pesquisar", title: "Pesquisar cursos", description: "Pesquisa cursos por termo, categoria, nível e campo.", endpoint: "/api/servicos/cursos/pesquisar", inputSchema: searchCourses },
   { name: "servicos_cursos.verificar", title: "Verificar cursos", description: "Consulta cursos por categoria ou slug.", endpoint: "/api/servicos/cursos/verificar", inputSchema: verifyCourses },
@@ -147,7 +148,14 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
             content: [{ type: "text" as const, text: "Este endpoint retornou um arquivo binário não disponibilizado por esta ferramenta." }]
           };
         }
-        return { content: [{ type: "text" as const, text: jsonText(result) }] };
+        const serialized = jsonText(result);
+        if (serialized.length > MAX_TOOL_OUTPUT_CHARS) {
+          return {
+            isError: true,
+            content: [{ type: "text" as const, text: "A resposta excedeu o limite de tamanho permitido para uma ferramenta MCP." }]
+          };
+        }
+        return { content: [{ type: "text" as const, text: serialized }] };
       } catch (error) {
         const status = typeof error === "object" && error !== null && "status" in error
           ? (error as { status?: unknown }).status
