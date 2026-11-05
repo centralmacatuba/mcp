@@ -26,7 +26,7 @@ describe("public MCP tools", () => {
       "servicos.listar",
       "servicos.obter",
       "servicos.pesquisar",
-      "paginas.verificar_id",
+      "paginas.verificar",
       "tempo.listar",
       "calendario.gerar"
     ]) {
@@ -36,11 +36,9 @@ describe("public MCP tools", () => {
 
   it("does not expose operations that require private credentials or client-only context", () => {
     for (const name of [
-      "sos.listar",
       "newsletter.verificar",
       "paginas.verificar",
       "paginas.listar_dominios",
-      "servicos_wiki.listar",
       "comunicacao.pesquisar"
     ]) {
       expect(registeredToolNames).not.toContain(name);
@@ -64,6 +62,8 @@ describe("public MCP tools", () => {
     expect(schema("servicos.obter").safeParse({}).success).toBe(false);
     expect(schema("mapa.filtrar").safeParse({ tipo: "praça" }).success).toBe(true);
     expect(schema("mapa.filtrar").safeParse({}).success).toBe(false);
+    expect(schema("mapa.listar").safeParse({ tipo: "praça" }).success).toBe(true);
+    expect(schema("mapa.listar").safeParse({}).success).toBe(true);
     expect(schema("paginas.verificar_id").safeParse({ id: 12 }).success).toBe(true);
     expect(schema("paginas.verificar_id").safeParse({}).success).toBe(false);
   });
@@ -75,5 +75,6 @@ describe("public MCP tools", () => {
     expect(find("jornal.listar")?.fixedQuery).toEqual({ funcao: "todas" });
     expect(find("jornal.obter")?.fixedQuery).toEqual({ funcao: "uma" });
     expect(find("servicos.pesquisar")?.fixedQuery).toEqual({ funcao: "pesquisar" });
+    expect(find("sos.listar")?.endpoint).toBe("/api/sos/listar_alertas");
   });
 });
