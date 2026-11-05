@@ -13,7 +13,7 @@ const queryInput = (schema: z.ZodType<any>) => schema as z.ZodObject<any>;
 const noInput = z.object({});
 
 const infoByIdOrName = queryInput(z.object({
-  id: z.number().int().optional(),
+  id: positiveId.optional(),
   nome: text.optional()
 }).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."));
 const searchInfo = queryInput(z.object({
@@ -38,7 +38,7 @@ const filterMap = queryInput(z.object({
   tipo: text.optional(),
   criador: text.optional(),
   verificado: text.optional()
-}));
+}).refine((value) => Object.values(value).some((item) => item !== undefined && item.trim().length > 0), "Informe ao menos um filtro."));
 const searchLinks = queryInput(z.object({ termo: text.optional() }));
 const verifyLinks = queryInput(z.object({
   funcao: z.enum(["tudo", "uma", "pendentes"]).optional(),
@@ -69,10 +69,10 @@ const searchGames = queryInput(z.object({
   campo: z.enum(["tudo", "titulo", "slug", "descricao_curta", "descricao_longa"]).optional()
 }));
 const verifyGames = queryInput(z.object({
-  id: z.number().int().optional(),
+  id: positiveId.optional(),
   nome: text.optional(),
   slug: text.optional()
-}));
+}).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()) || Boolean(value.slug?.trim()), "Informe id, nome ou slug."));
 const streamingTypes = ["radio", "tv", "vod", "camera", "podcast"] as const;
 const searchStreaming = queryInput(z.object({
   tipo: z.enum(streamingTypes),
