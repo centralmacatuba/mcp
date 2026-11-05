@@ -59,7 +59,7 @@
   "scripts": {
     "build": "tsup && pnpm build:apps",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "pnpm build:apps && vitest run",
     "test:watch": "vitest",
     "start": "node dist/cli.js --transport stdio",
     "start:http": "node dist/cli.js --transport http",
