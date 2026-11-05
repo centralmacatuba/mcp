@@ -15,5 +15,5 @@ export default defineConfig({
   dts: true,
   splitting: false,
   treeshake: true,
-  external: ["@centralmacatuba/api", "@modelcontextprotocol/server", "@modelcontextprotocol/node", "@modelcontextprotocol/client", "@modelcontextprotocol/ext-apps", "zod"]
+  external: ["@centralmacatuba/api", "@modelcontextprotocol/server", "@modelcontextprotocol/node", "@modelcontextprotocol/ext-apps", "zod"]
 });
