@@ -18,15 +18,24 @@ O pacote fornece executáveis e módulos para os transportes STDIO e Streamable 
 
 ## Desenvolvimento a partir do código-fonte
 
-Enquanto os pacotes ainda não estiverem publicados, clone o repositório e siga as instruções de desenvolvimento:
+Antes da publicação de `@centralmacatuba/api@0.1.0`, a dependência precisa ser compilada localmente e ligada ao pacote MCP, seguindo o mesmo fluxo da CI:
 
 ```bash
 git clone https://github.com/centralmacatuba/mcp.git
 cd mcp
-pnpm install
+git clone https://github.com/centralmacatuba/api-sdk.git api-sdk
+cd api-sdk
+git checkout 4582e6591ecdd197ccbc03a8edec92ff9dac71da
+pnpm install --frozen-lockfile
+pnpm build
+cd ..
+
+node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.dependencies['@centralmacatuba/api']='file:./api-sdk';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
+
+pnpm install --no-frozen-lockfile
 pnpm typecheck
 pnpm test
 pnpm build
 ```
 
-A CI constrói a dependência `@centralmacatuba/api` a partir do repositório `centralmacatuba/api-sdk` durante a fase de desenvolvimento integrado. O consumidor do pacote publicado utilizará a versão do SDK indicada em `package.json`.
+O ajuste para `file:./api-sdk` é local e temporário; não o versione. Depois que a versão compatível do SDK estiver publicada, uma instalação limpa poderá resolver a dependência diretamente pelo npm.
