@@ -70,7 +70,7 @@ Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço
 
 As ferramentas iniciais são somente leitura e mapeiam para endpoints presentes na allowlist do SDK público. Consulte [matriz de compatibilidade](docs/compatibilidade.md) para ver o que foi preservado, redesenhado ou excluído do servidor PHP legado.
 
-Ferramentas com parâmetros recebem um objeto `query`, validado com os campos, tipos, enums e obrigatoriedades definidos no OpenAPI. Campos de texto são limitados a 2.048 caracteres e respostas MCP a 100.000 caracteres. O servidor não aceita caminhos arbitrários nem nomes de endpoint fornecidos pelo cliente.
+Os argumentos das ferramentas são recebidos no nível superior, preservando os contratos legados quando há equivalência. Cada ferramenta valida campos, tipos, enums e obrigatoriedades definidos no OpenAPI. Campos de texto são limitados a 2.048 caracteres e respostas MCP a 100.000 caracteres. O servidor não aceita caminhos arbitrários nem nomes de endpoint fornecidos pelo cliente.
 
 Consulte [configuração de clientes](docs/clientes.md) para exemplos de conexão via STDIO e Streamable HTTP.
 
