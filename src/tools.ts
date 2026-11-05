@@ -268,4 +268,4 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
 
 export const registeredToolNames = tools.map(({ name }) => name);
 export const registeredToolSchemas = Object.fromEntries(tools.map(({ name, inputSchema }) => [name, inputSchema]));
-export const registeredToolDefinitions = tools.map(({ name, endpoint, fixedQuery, appUri }) => ({ name, endpoint, fixedQuery, appUri }));
+export const registeredToolDefinitions = tools.map(({ name, title, description, endpoint, fixedQuery, appUri, inputSchema }) => ({ name, title, description, endpoint, fixedQuery, appUri, inputSchema }));
