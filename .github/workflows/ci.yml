@@ -64,3 +64,6 @@ jobs:
 
       - name: Verify MCP App bundle
         run: test -s dist/apps/tempo.html
+
+      - name: Validate npm package contents
+        run: npm pack --dry-run --ignore-scripts
