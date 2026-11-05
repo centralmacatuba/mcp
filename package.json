@@ -63,7 +63,8 @@
     "start": "node dist/cli.js --transport stdio",
     "start:http": "node dist/cli.js --transport http",
     "dev": "tsx src/cli.ts --transport stdio",
-    "build:apps": "vite build --config vite.apps.config.ts"
+    "build:apps": "vite build --config vite.apps.config.ts",
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "@centralmacatuba/api": "^0.1.0",
