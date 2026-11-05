@@ -57,7 +57,7 @@ describe("public MCP tools", () => {
     expect(schema("mapa.listar").safeParse({}).success).toBe(true);
     expect(schema("mapa.listar").safeParse({ tipo: "praça" }).success).toBe(true);
     expect(schema("mapa.filtrar").safeParse({ tipo: "praça" }).success).toBe(true);
-    expect(schema("mapa.filtrar").safeParse({}).success).toBe(false);
+    expect(schema("mapa.filtrar").safeParse({}).success).toBe(true);
   });
 
   it("requires identifying fields for lookup tools", () => {
@@ -76,5 +76,12 @@ describe("public MCP tools", () => {
     expect(find("jornal.obter")?.fixedQuery).toEqual({ funcao: "uma" });
     expect(find("servicos.pesquisar")?.fixedQuery).toEqual({ funcao: "pesquisar" });
     expect(find("sos.listar")?.endpoint).toBe("/api/sos/listar_alertas");
+    expect(find("tempo.listar")?.appUri).toBe("ui://centralmacatuba/tempo");
+    expect(find("mapa.listar")?.appUri).toBe("ui://centralmacatuba/mapa");
+    expect(find("jornal.listar")?.appUri).toBe("ui://centralmacatuba/jornal");
+    expect(find("informacoes.listar")?.appUri).toBe("ui://centralmacatuba/informacoes");
+    expect(find("servicos.listar")?.appUri).toBe("ui://centralmacatuba/servicos");
+    expect(find("servicos_cursos.verificar")?.appUri).toBe("ui://centralmacatuba/cursos");
+    expect(find("sos.listar")?.appUri).toBe("ui://centralmacatuba/sos");
   });
 });
