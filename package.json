@@ -63,7 +63,7 @@
     "test:watch": "vitest",
     "start": "node dist/cli.js --transport stdio",
     "start:http": "node dist/cli.js --transport http",
-    "dev": "tsx src/cli.ts --transport stdio",
+    "dev": "pnpm build:apps && tsx src/cli.ts --transport stdio",
     "build:apps": "tsx scripts/build-apps.ts",
     "prepack": "pnpm docs:generate && pnpm build",
     "release": "changeset publish",
