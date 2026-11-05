@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { loadConfig } from "./config.js";
 import { createMcpServer } from "./server.js";
 
@@ -44,9 +44,10 @@ export async function startHttpServer(): Promise<void> {
       return;
     }
 
-    const transport = new StreamableHTTPServerTransport({
+    const transport = new NodeStreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
-      enableJsonResponse: true
+      enableJsonResponse: true,
+      maxRequestBodySize: 1_048_576
     });
     const mcpServer = createMcpServer();
 
