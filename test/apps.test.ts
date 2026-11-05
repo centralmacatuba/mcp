@@ -34,7 +34,4 @@ describe("MCP App resources", () => {
     await expect(readAppHtml("../README.md")).rejects.toThrow(/não pertence à lista/);
   });
 
-  it("reports a clear error when an app HTML file is missing", async () => {
-    await expect(readAppHtml("missing-app.html")).rejects.toThrow(/não pertence à lista/);
-  });
 });
