@@ -8,7 +8,7 @@ A regra de migração é restritiva: uma ferramenta só pode ser implementada qu
 
 | Ferramenta legada | Operação pública do SDK | Situação |
 | --- | --- | --- |
-| `ping` | `/` | Coberta por `health_verificar` |
+| `ping` | `/` | Coberta com o mesmo nome |
 | `avisos.verificar` | `/api/avisos/verificar` | Coberta |
 | `calendario.verificar` | `/api/calendario/verificar` | Coberta |
 | `calendario.gerar` | `/api/calendario/gerar` | Endpoint público binário; ferramenta MCP ainda não exposta |
@@ -29,6 +29,12 @@ A regra de migração é restritiva: uma ferramenta só pode ser implementada qu
 | `servicos_streaming.*` | `/api/servicos/streaming/*` | Cobertas |
 | `sos.listar` | `/api/sos/listar_alertas` | Coberta; depende das permissões públicas previstas pelo endpoint |
 | `tempo.listar` | `/api/tempo/verificar` | Coberta como consulta; validar parâmetros opcionais |
+
+## Ferramentas já registradas na primeira implementação
+
+A primeira implementação registra consultas públicas para: `ping`, `avisos.verificar`, `calendario.verificar`, `dominios.verificar`, `informacoes.pesquisar`, `informacoes.verificar`, `jornal.pesquisar`, `jornal.verificar`, `links.pesquisar`, `links.verificar`, `mapa.pesquisar`, `mapa.verificar`, `novidades.pesquisar`, `novidades.verificar`, `paginas.pesquisar`, `paginas.verificar`, `redicionador.verificar`, `servicos.verificar`, operações de cursos/docs/jogos/streaming, `sos.listar` e `tempo.listar`.
+
+Os nomes antigos são mantidos quando existe correspondência clara. A interface de argumentos foi normalizada: endpoints com parâmetros recebem um objeto `query`, validado por schema. Isso é uma mudança de formato em relação aos parâmetros de topo do manifesto antigo e deverá ser documentado na migração.
 
 ## Fora da nova implementação por enquanto
 
