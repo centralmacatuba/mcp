@@ -9,13 +9,13 @@ const positiveId = z.number().int().positive();
 const MAX_TOOL_OUTPUT_CHARS = 100_000;
 type ToolQuery = Record<string, string | number | boolean | Array<string | number | boolean>>;
 
-const queryInput = (schema: z.ZodType<any>, _required = false) => schema as z.ZodObject<any>;
+const queryInput = (schema: z.ZodType<any>) => schema as z.ZodObject<any>;
 const noInput = z.object({});
 
 const infoByIdOrName = queryInput(z.object({
   id: z.number().int().optional(),
   nome: text.optional()
-}).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."), true);
+}).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."));
 const searchInfo = queryInput(z.object({
   p: text.optional(),
   filtro: z.enum(["nome", "tipo", "bairro", "zona"]).optional()
@@ -23,17 +23,17 @@ const searchInfo = queryInput(z.object({
 const searchJournal = queryInput(z.object({
   q: text.min(1),
   filtro: z.enum(["criador", "titulo", "subtitulo", "conteudo", "tudo"]).optional()
-}), true);
-const journalById = queryInput(z.object({ id: positiveId }), true);
+}));
+const journalById = queryInput(z.object({ id: positiveId }));
 const searchMap = queryInput(z.object({
   q: text.min(1),
   filtro: z.enum(["nome", "tipo", "criador", "descricao", "tudo"]).optional()
-}), true);
+}));
 const filterMap = queryInput(z.object({
   tipo: text.optional(),
   criador: text.optional(),
   verificado: text.optional()
-}).refine((value) => Object.values(value).some((item) => item !== undefined && item !== ""), "Informe ao menos um filtro."), true);
+}).refine((value) => Object.values(value).some((item) => item !== undefined && item !== ""), "Informe ao menos um filtro."));
 const searchLinks = queryInput(z.object({ termo: text.optional() }));
 const verifyLinks = queryInput(z.object({
   funcao: z.enum(["tudo", "uma", "pendentes"]).optional(),
@@ -58,7 +58,7 @@ const searchDocs = queryInput(z.object({
   q: text.optional(),
   campo: z.enum(["nome", "descricao", "conteudo", "data_criacao", "data_atualizacao", "todos"]).optional()
 }));
-const verifyDocs = queryInput(z.object({ slug: text.min(1) }), true);
+const verifyDocs = queryInput(z.object({ slug: text.min(1) }));
 const searchGames = queryInput(z.object({
   q: text.optional(),
   campo: z.enum(["tudo", "titulo", "slug", "descricao_curta", "descricao_longa"]).optional()
@@ -73,16 +73,16 @@ const searchStreaming = queryInput(z.object({
   tipo: z.enum(streamingTypes),
   p: text.optional(),
   filtro: z.enum(["nome", "descricao_curta", "descricao_longa", "tipo", "categoria", "qualidade", "classificacao", "tipo_stream", "tudo"]).optional()
-}), true);
+}));
 const verifyStreaming = queryInput(z.object({
   tipo: z.enum(streamingTypes),
   funcao: z.enum(["tudo", "uma"]).optional(),
   id: positiveId.optional()
-}), true);
+}));
 const serviceByIdOrName = queryInput(z.object({
   id: z.number().int().optional(),
   nome: text.optional()
-}).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."), true);
+}).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."));
 
 interface ToolDefinition {
   name: string;
@@ -114,11 +114,11 @@ const tools: ToolDefinition[] = [
   { name: "novidades.pesquisar", title: "Pesquisar novidades", description: "Pesquisa novidades publicadas na Central Macatuba.", endpoint: "/api/novidades/pesquisar", inputSchema: queryInput(z.object({ q: text.max(200).optional() })) },
   { name: "novidades.verificar", title: "Verificar novidades", description: "Consulta novidades por função e, opcionalmente, id.", endpoint: "/api/novidades/verificar", inputSchema: verifyItems },
   { name: "paginas.pesquisar", title: "Pesquisar páginas", description: "Pesquisa páginas públicas catalogadas pela Central Macatuba.", endpoint: "/api/paginas/pesquisar", inputSchema: queryInput(z.object({ q: text.optional() })) },
-  { name: "paginas.verificar_id", title: "Consultar página por ID", description: "Consulta uma página pública pelo seu ID numérico.", endpoint: "/api/paginas/verificar", inputSchema: queryInput(z.object({ id: positiveId }), true) },
-  { name: "redicionador.verificar", title: "Verificar redirecionador", description: "Verifica se o slug derivado do parâmetro url existe e se o domínio do cliente está autorizado.", endpoint: "/api/redicionador/verificar", inputSchema: queryInput(z.object({ url: text.min(1) }), true) },
+  { name: "paginas.verificar_id", title: "Consultar página por ID", description: "Consulta uma página pública pelo seu ID numérico.", endpoint: "/api/paginas/verificar", inputSchema: queryInput(z.object({ id: positiveId })) },
+  { name: "redicionador.verificar", title: "Verificar redirecionador", description: "Verifica se o slug derivado do parâmetro url existe e se o domínio do cliente está autorizado.", endpoint: "/api/redicionador/verificar", inputSchema: queryInput(z.object({ url: text.min(1) })) },
   { name: "servicos.listar", title: "Listar serviços", description: "Lista os serviços públicos do catálogo Serviços Macatuba.", endpoint: "/api/servicos/verificar", inputSchema: noInput, fixedQuery: { funcao: "tudo" } },
   { name: "servicos.obter", title: "Obter serviço", description: "Obtém um serviço por id ou nome; informe pelo menos um deles.", endpoint: "/api/servicos/verificar", inputSchema: serviceByIdOrName, fixedQuery: { funcao: "uma" } },
-  { name: "servicos.pesquisar", title: "Pesquisar serviços", description: "Pesquisa serviços públicos pelo termo informado.", endpoint: "/api/servicos/verificar", inputSchema: queryInput(z.object({ termo: text.min(1) }), true), fixedQuery: { funcao: "pesquisar" } },
+  { name: "servicos.pesquisar", title: "Pesquisar serviços", description: "Pesquisa serviços públicos pelo termo informado.", endpoint: "/api/servicos/verificar", inputSchema: queryInput(z.object({ termo: text.min(1) })), fixedQuery: { funcao: "pesquisar" } },
   { name: "servicos_cursos.pesquisar", title: "Pesquisar cursos", description: "Pesquisa cursos por termo, categoria, nível e campo.", endpoint: "/api/servicos/cursos/pesquisar", inputSchema: searchCourses },
   { name: "servicos_cursos.verificar", title: "Verificar cursos", description: "Consulta cursos por categoria ou slug.", endpoint: "/api/servicos/cursos/verificar", inputSchema: verifyCourses },
   { name: "servicos_docs.pesquisar", title: "Pesquisar documentação", description: "Pesquisa documentação por categoria, termo e campo.", endpoint: "/api/servicos/docs/pesquisar", inputSchema: searchDocs },
