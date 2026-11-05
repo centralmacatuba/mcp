@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
+import type { McpServer } from "@modelcontextprotocol/server";
+import type { CentralMacatubaSDK, PublicEndpoint } from "@centralmacatuba/api";
 import { PUBLIC_ENDPOINTS } from "@centralmacatuba/api";
 import {
   createCalendarFileContent,
+  registerApiTools,
   registeredToolDefinitions,
   registeredToolNames,
   registeredToolSchemas
@@ -154,5 +157,41 @@ describe("calendar binary tool content", () => {
     await expect(createCalendarFileContent(
       new Blob([new Uint8Array(8 * 1024 * 1024 + 1)], { type: "application/pdf" })
     )).rejects.toThrow("excedeu o limite");
+  });
+});
+
+
+describe("API tool handler integration", () => {
+  it("preserves the SDK instance context when invoking a registered tool", async () => {
+    const handlers = new Map<string, (args: unknown) => Promise<unknown>>();
+    const fakeServer = {
+      registerTool(name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) {
+        handlers.set(name, handler);
+      }
+    } as unknown as McpServer;
+
+    const calls: Array<{ endpoint: PublicEndpoint; query?: Record<string, unknown> }> = [];
+    const api = {
+      marker: "sdk-instance-context",
+      async request(this: { marker: string }, endpoint: PublicEndpoint, query?: Record<string, unknown>) {
+        expect(this.marker).toBe("sdk-instance-context");
+        calls.push({ endpoint, query });
+        return { success: true, endpoint };
+      }
+    } as unknown as CentralMacatubaSDK;
+
+    registerApiTools(fakeServer, api);
+    const handler = handlers.get("calendario.gerar");
+    expect(handler).toBeDefined();
+
+    const result = await handler!({ ano: 2026, formato: "pdf" });
+
+    expect(calls).toEqual([{
+      endpoint: "/api/calendario/gerar",
+      query: { ano: 2026, formato: "pdf" }
+    }]);
+    expect(result).toMatchObject({
+      structuredContent: { success: true, endpoint: "/api/calendario/gerar" }
+    });
   });
 });
