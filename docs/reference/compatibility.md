@@ -1,6 +1,6 @@
 # Compatibilidade
 
-A relação completa das ferramentas MCP, operações públicas do SDK, argumentos, limitações e funcionalidades deliberadamente excluídas está em [Compatibilidade das ferramentas MCP](https://github.com/centralmacatuba/mcp/blob/feat/mcp-server/docs/compatibilidade.md).
+A relação completa das ferramentas MCP, operações públicas do SDK, argumentos, limitações e funcionalidades deliberadamente excluídas está em [Compatibilidade das ferramentas MCP](https://github.com/centralmacatuba/mcp/blob/principal/docs/compatibilidade.md).
 
 A referência gerada de ferramentas está em [Ferramentas](./tools).
 
