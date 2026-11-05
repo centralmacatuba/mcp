@@ -7,8 +7,10 @@ describe("public MCP tools", () => {
     expect(new Set(registeredToolNames).size).toBe(registeredToolNames.length);
     expect(registeredToolNames).toContain("jornal.pesquisar");
     expect(registeredToolNames).toContain("tempo.listar");
+    expect(registeredToolNames).toContain("calendario.gerar");
     expect(registeredToolNames).toContain("ping");
     expect(registeredToolNames).not.toContain("newsletter.verificar");
+    expect(registeredToolNames).not.toContain("sos.listar");
     expect(registeredToolNames).not.toContain("paginas.listar_dominios");
     expect(registeredToolNames).not.toContain("servicos_wiki.listar");
   });
