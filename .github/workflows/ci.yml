@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [principal, "feat/**"]
   pull_request:
     branches: [principal]
   workflow_dispatch:
