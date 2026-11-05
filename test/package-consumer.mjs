@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import * as entry from "../dist/index.js";
 import * as http from "../dist/http.js";
 import * as stdio from "../dist/stdio.js";
-import packageJson from "../package.json" with { type: "json" };
+import { readFileSync } from "node:fs";
+const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 
 const expected = [
   "createMcpServer",
