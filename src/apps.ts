@@ -40,6 +40,7 @@ export async function readAppHtml(file: string): Promise<string> {
   throw new Error(`MCP App HTML "${file}" não encontrado nos diretórios de origem nem de build.`, { cause: missingError });
 }
 
+/** Registers all allowlisted MCP App HTML resources on the server. */
 export function registerAppResources(server: McpServer): void {
   for (const resource of APP_RESOURCES) {
     registerAppResource(
