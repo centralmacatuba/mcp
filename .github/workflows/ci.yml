@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [feat/mcp-server]
+    branches: [principal]
   pull_request:
     branches: [principal]
   workflow_dispatch:
