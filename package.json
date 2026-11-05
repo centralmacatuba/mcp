@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/centralmacatuba/mcp.git"
   },
-  "homepage": "https://github.com/centralmacatuba/mcp#readme",
+  "homepage": "https://docs.mcp.centralmacatuba.qzz.io/",
   "bugs": {
     "url": "https://github.com/centralmacatuba/mcp/issues"
   },
@@ -75,7 +75,7 @@
     "test:package": "node test/package-consumer.mjs"
   },
   "dependencies": {
-    "@centralmacatuba/api": "^0.1.0",
+    "@centralmacatuba/api": "0.1.0",
     "zod": "^4.2.0",
     "@modelcontextprotocol/server": "^2.4.0",
     "@modelcontextprotocol/node": "^2.1.2",
