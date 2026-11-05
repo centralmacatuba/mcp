@@ -1,3 +1,100 @@
 # @centralmacatuba/mcp
 
-Servidor MCP TypeScript da Central Macatuba. O desenvolvimento acontece na branch `feat/mcp-server`.
+Servidor MCP oficial da **Central Macatuba**, escrito em TypeScript. Expõe ferramentas de consulta aos serviços públicos por meio do SDK oficial do Model Context Protocol e do SDK cliente `@centralmacatuba/api`.
+
+> **Status:** implementação inicial em desenvolvimento. Não substitui o servidor PHP atualmente publicado em `https://mcp.centralmacatuba.qzz.io/mcp`. A migração de produção depende de auditoria de paridade, conformidade e estabilidade.
+
+## Arquitetura
+
+```text
+Cliente MCP
+    │ MCP / Streamable HTTP ou STDIO
+    ▼
+@centralmacatuba/mcp
+    │ métodos e allowlist do SDK
+    ▼
+@centralmacatuba/api
+    │ HTTPS
+    ▼
+API Pública Central Macatuba
+```
+
+Este pacote não implementa uma segunda camada HTTP para os endpoints de dados. Toda consulta passa pelo SDK público. Não há acesso a APIs privadas/administrativas nem uso de credenciais internas do gateway.
+
+## Requisitos e instalação
+
+- Node.js 20 ou superior.
+- pnpm 12.12.1 para desenvolvimento.
+- SDK `@centralmacatuba/api` compatível com `^0.1.0`.
+
+Após a publicação dos dois pacotes:
+
+```bash
+pnpm add @centralmacatuba/mcp
+```
+
+A instalação completa e a validação de integração dependem de `@centralmacatuba/api@^0.1.0` estar disponível no npm. Enquanto isso, a implementação pode ser desenvolvida em paralelo, mas não deve ser considerada pronta para release.
+
+## Execução
+
+STDIO (padrão para clientes MCP locais):
+
+```bash
+npx centralmacatuba-mcp --transport stdio
+```
+
+Streamable HTTP:
+
+```bash
+MCP_HTTP_PORT=3000 MCP_ALLOWED_HOSTS=localhost,127.0.0.1 node dist/cli.js --transport http
+```
+
+Endpoint: `http://localhost:3000/mcp`.
+
+## Configuração
+
+| Variável | Padrão | Descrição |
+| --- | --- | --- |
+| `CM_API_BASE_URL` | `https://publica.api.centralmacatuba.qzz.io` | URL base do gateway público |
+| `CM_API_TIMEOUT_MS` | `20000` | Timeout das chamadas ao SDK |
+| `PORT` | `3000` | Porta HTTP (compatível com Render) |
+| `MCP_HTTP_PORT` | `3000` | Porta HTTP alternativa |
+| `MCP_HTTP_HOST` | `0.0.0.0` | Interface de escuta |
+| `MCP_ALLOWED_HOSTS` | localhost / loopback | Hosts HTTP permitidos, separados por vírgula |
+| `MCP_ALLOWED_ORIGINS` | vazio | Allowlist opcional de Origin para clientes browser |
+
+Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço. Não configure `X-API-KEY`, `X-CM-CLIENT-ID` ou `X-CM-REQUEST-TOKEN`: este servidor não precisa desses segredos e não deve recebê-los.
+
+## Ferramentas
+
+As ferramentas iniciais são somente leitura e mapeiam para endpoints presentes na allowlist do SDK público. Consulte [matriz de compatibilidade](docs/compatibilidade.md) para ver o que foi preservado, redesenhado ou excluído do servidor PHP legado.
+
+Ferramentas com parâmetros recebem um objeto `query`. O servidor não aceita URLs, caminhos arbitrários nem nomes de endpoint fornecidos pelo cliente.
+
+## MCP Apps
+
+MCP Apps permanece uma etapa de integração separada, alinhada à issue [centralmacatuba/site#7](https://github.com/centralmacatuba/site/issues/7). Esta base não anuncia recursos de UI nem declara suporte a Apps até que o SDK/bridge oficial e os recursos correspondentes estejam implementados e testados. As ferramentas MCP básicas não dependerão de suporte a Apps no cliente.
+
+## Transporte e migração
+
+- STDIO: processo local para clientes MCP.
+- Streamable HTTP: endpoint `/mcp`, em modo stateless nesta primeira implementação.
+- O servidor PHP e seu endpoint público permanecem intactos durante o desenvolvimento.
+- Não aponte produção para este pacote antes de validar paridade, conformidade e segurança.
+
+## Desenvolvimento
+
+```bash
+pnpm install
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+A CI usa pnpm 12.12.1. O lockfile será versionado assim que a resolução das dependências puder ser executada com o SDK público disponível.
+
+## Projeto e licença
+
+A Central Macatuba é um projeto independente desenvolvido por **Desenvolvedor EE (Dev EE)**, sem relação ou vínculo institucional com a Prefeitura Municipal de Macatuba.
+
+MIT. Consulte [LICENSE](LICENSE).
