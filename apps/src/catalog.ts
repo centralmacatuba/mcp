@@ -20,9 +20,7 @@ function extractPayload(response: any): unknown {
     const message = response.content?.filter((item: any) => item.type === "text").map((item: any) => item.text).join("\n");
     throw new Error(message || "A ferramenta retornou um erro.");
   }
-  let value = response?.structuredContent ?? response;
-  if (value && typeof value === "object" && !Array.isArray(value) && Object.hasOwn(value, "result")) value = value.result;
-  return value;
+  return response?.structuredContent ?? response;
 }
 
 function renderValue(value: unknown, depth = 0): HTMLElement {
