@@ -15,6 +15,28 @@ export const APP_RESOURCES = [
 
 export type AppResourceUri = (typeof APP_RESOURCES)[number]["uri"];
 
+/**
+ * Reads an MCP App bundle from the source tree during development or dist/apps after build.
+ * Only missing-file errors trigger the fallback; permission and I/O errors remain visible.
+ */
+export async function readAppHtml(file: string): Promise<string> {
+  const isBuilt = fileURLToPath(import.meta.url).split(/[\\/]/).includes("dist");
+  const relativePaths = isBuilt ? [`./apps/${file}`, `../apps/${file}`] : [`../apps/${file}`, `./apps/${file}`];
+  let missingError: NodeJS.ErrnoException | undefined;
+
+  for (const relativePath of relativePaths) {
+    const path = fileURLToPath(new URL(relativePath, import.meta.url));
+    try {
+      return await readFile(path, "utf8");
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      missingError = error as NodeJS.ErrnoException;
+    }
+  }
+
+  throw new Error(`MCP App HTML "${file}" não encontrado nos diretórios de origem nem de build.`, { cause: missingError });
+}
+
 export function registerAppResources(server: McpServer): void {
   for (const resource of APP_RESOURCES) {
     registerAppResource(
@@ -23,8 +45,7 @@ export function registerAppResources(server: McpServer): void {
       resource.uri,
       { description: resource.description, mimeType: RESOURCE_MIME_TYPE },
       async () => {
-        const htmlPath = fileURLToPath(new URL(`./apps/${resource.file}`, import.meta.url));
-        const html = await readFile(htmlPath, "utf8");
+        const html = await readAppHtml(resource.file);
         return { contents: [{ uri: resource.uri, mimeType: RESOURCE_MIME_TYPE, text: html }] };
       }
     );
