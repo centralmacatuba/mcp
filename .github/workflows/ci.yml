@@ -46,6 +46,14 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm build
 
+      - name: Validate published dependency lockfile when available
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile --ignore-scripts
+          else
+            echo "::notice::pnpm-lock.yaml will be generated after @centralmacatuba/api@0.1.0 is published."
+          fi
+
       - name: Link the in-development API SDK for CI
         run: |
           node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.dependencies['@centralmacatuba/api']='file:./api-sdk';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
