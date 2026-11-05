@@ -56,25 +56,30 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && pnpm build:apps",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "node dist/cli.js --transport stdio",
     "start:http": "node dist/cli.js --transport http",
-    "dev": "tsx src/cli.ts --transport stdio"
+    "dev": "tsx src/cli.ts --transport stdio",
+    "build:apps": "vite build --config vite.apps.config.ts"
   },
   "dependencies": {
     "@centralmacatuba/api": "^0.1.0",
     "zod": "^4.2.0",
     "@modelcontextprotocol/server": "^2.4.0",
-    "@modelcontextprotocol/node": "^2.4.0"
+    "@modelcontextprotocol/node": "^2.4.0",
+    "@modelcontextprotocol/ext-apps": "^1.1.2",
+    "@modelcontextprotocol/client": "^2.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.19.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.12"
+    "vitest": "^4.1.12",
+    "vite": "^6.4.1",
+    "vite-plugin-singlefile": "^2.3.0"
   }
 }
