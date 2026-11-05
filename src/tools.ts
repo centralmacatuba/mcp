@@ -38,7 +38,7 @@ const filterMap = queryInput(z.object({
   tipo: text.optional(),
   criador: text.optional(),
   verificado: text.optional()
-}).refine((value) => Object.values(value).some((item) => item !== undefined && item !== ""), "Informe ao menos um filtro."));
+}));
 const searchLinks = queryInput(z.object({ termo: text.optional() }));
 const verifyLinks = queryInput(z.object({
   funcao: z.enum(["tudo", "uma", "pendentes"]).optional(),
@@ -215,4 +215,4 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
 
 export const registeredToolNames = tools.map(({ name }) => name);
 export const registeredToolSchemas = Object.fromEntries(tools.map(({ name, inputSchema }) => [name, inputSchema]));
-export const registeredToolDefinitions = tools.map(({ name, endpoint, fixedQuery }) => ({ name, endpoint, fixedQuery }));
+export const registeredToolDefinitions = tools.map(({ name, endpoint, fixedQuery, appUri }) => ({ name, endpoint, fixedQuery, appUri }));
