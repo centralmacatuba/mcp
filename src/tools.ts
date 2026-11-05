@@ -65,7 +65,7 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
       description: definition.description,
       inputSchema,
       annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false }
-    }, async (args: { query?: Record<string, string | number | boolean | Array<string | number | boolean>> }) => {
+    }, async (args) => {
       try {
         // A rota é selecionada exclusivamente pela tabela estática acima.
         // O SDK também verifica sua própria allowlist antes de enviar a chamada.
@@ -73,7 +73,8 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
           endpoint: (typeof PUBLIC_ENDPOINTS)[number],
           query?: Record<string, string | number | boolean | Array<string | number | boolean>>
         ) => Promise<unknown>;
-        const result = await request(definition.endpoint, args.query ?? {});
+        const query = "query" in args ? args.query : undefined;
+        const result = await request(definition.endpoint, query ?? {});
         if (result instanceof Blob) {
           return {
             isError: true,
