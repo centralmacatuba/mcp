@@ -7,11 +7,13 @@ export interface McpConfig {
   allowedOrigins: ReadonlySet<string>;
 }
 
+/** Parses a comma-separated environment variable into a normalized immutable set. */
 function csvSet(value: string | undefined, fallback: string[]): ReadonlySet<string> {
   const values = value?.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
   return new Set(values?.length ? values : fallback);
 }
 
+/** Parses and validates a positive integer environment setting. */
 function positiveInteger(value: string | undefined, fallback: number, name: string): number {
   if (value === undefined || value === "") return fallback;
   const parsed = Number(value);
@@ -21,6 +23,7 @@ function positiveInteger(value: string | undefined, fallback: number, name: stri
   return parsed;
 }
 
+/** Loads and validates public API, HTTP listener, host, and origin configuration. */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): McpConfig {
   const apiBaseUrl = env.CM_API_BASE_URL ?? "https://publica.api.centralmacatuba.qzz.io";
   const parsedUrl = new URL(apiBaseUrl);
