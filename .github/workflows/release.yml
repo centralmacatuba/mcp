@@ -88,4 +88,5 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm config set //npm.pkg.github.com/:_authToken "$NODE_AUTH_TOKEN" --location=user
-          npm publish --registry=https://npm.pkg.github.com
+          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.publishConfig={...p.publishConfig,registry:'https://npm.pkg.github.com'};fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
+          npm publish
