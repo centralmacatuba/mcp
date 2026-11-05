@@ -48,23 +48,23 @@ describe("public MCP tools", () => {
   });
 
   it("validates required OpenAPI parameters and enum values", () => {
-    expect(schema("jornal.pesquisar").safeParse({ query: { q: "Macatuba" } }).success).toBe(true);
+    expect(schema("jornal.pesquisar").safeParse({ q: "Macatuba" }).success).toBe(true);
     expect(schema("jornal.pesquisar").safeParse({}).success).toBe(false);
-    expect(schema("jornal.pesquisar").safeParse({ query: { q: "Macatuba", filtro: "url" } }).success).toBe(false);
+    expect(schema("jornal.pesquisar").safeParse({ q: "Macatuba", filtro: "url" }).success).toBe(false);
 
-    expect(schema("servicos_streaming.pesquisar").safeParse({ query: { tipo: "radio" } }).success).toBe(true);
-    expect(schema("servicos_streaming.pesquisar").safeParse({ query: { tipo: "music" } }).success).toBe(false);
+    expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "radio" }).success).toBe(true);
+    expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "music" }).success).toBe(false);
 
-    expect(schema("calendario.verificar").safeParse({ query: { data: "2026-11-05" } }).success).toBe(true);
-    expect(schema("calendario.verificar").safeParse({ query: { data: "05/11/2026" } }).success).toBe(false);
+    expect(schema("calendario.verificar").safeParse({ data: "2026-11-05" }).success).toBe(true);
+    expect(schema("calendario.verificar").safeParse({ data: "05/11/2026" }).success).toBe(false);
   });
 
   it("requires identifying fields for get/filter tools", () => {
-    expect(schema("servicos.obter").safeParse({ query: { id: 3 } }).success).toBe(true);
-    expect(schema("servicos.obter").safeParse({ query: {} }).success).toBe(false);
-    expect(schema("mapa.filtrar").safeParse({ query: { tipo: "praça" } }).success).toBe(true);
-    expect(schema("mapa.filtrar").safeParse({ query: {} }).success).toBe(false);
-    expect(schema("paginas.verificar_id").safeParse({ query: { id: 12 } }).success).toBe(true);
+    expect(schema("servicos.obter").safeParse({ id: 3 }).success).toBe(true);
+    expect(schema("servicos.obter").safeParse({}).success).toBe(false);
+    expect(schema("mapa.filtrar").safeParse({ tipo: "praça" }).success).toBe(true);
+    expect(schema("mapa.filtrar").safeParse({}).success).toBe(false);
+    expect(schema("paginas.verificar_id").safeParse({ id: 12 }).success).toBe(true);
     expect(schema("paginas.verificar_id").safeParse({}).success).toBe(false);
   });
 
