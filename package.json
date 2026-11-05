@@ -65,7 +65,8 @@
     "start:http": "node dist/cli.js --transport http",
     "dev": "tsx src/cli.ts --transport stdio",
     "build:apps": "vite build --config vite.apps.config.ts",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "release": "changeset publish"
   },
   "dependencies": {
     "@centralmacatuba/api": "^0.1.0",
@@ -81,6 +82,7 @@
     "typescript": "^5.9.3",
     "vitest": "^4.1.12",
     "vite": "^6.4.1",
-    "vite-plugin-singlefile": "^2.3.0"
+    "vite-plugin-singlefile": "^2.3.0",
+    "@changesets/cli": "^2.31.1"
   }
 }
