@@ -3,7 +3,10 @@ import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { loadConfig } from "./config.js";
 import { createMcpServer } from "./server.js";
 
-/** Extracts a normalized hostname from the incoming HTTP Host header. */
+/**
+ * Extracts a lowercase hostname without IPv6 brackets from the HTTP Host header.
+ * Returns undefined for a missing header or a value that cannot be parsed as a URL.
+ */
 function requestHost(request: IncomingMessage): string | undefined {
   const raw = request.headers.host;
   if (!raw) return undefined;
@@ -21,7 +24,13 @@ function reject(response: ServerResponse, status: number, message: string): void
   response.end(JSON.stringify({ error: message }));
 }
 
-/** Starts the stateless Streamable HTTP transport on the configured listener. */
+/**
+ * Starts the stateless Streamable HTTP transport at /mcp with host and origin checks.
+ * Resolves when listening; rejects configuration and listener startup errors.
+ * Transport connection and request errors become HTTP 500 responses when headers
+ * have not been sent, or end the response otherwise. Registers SIGINT and SIGTERM
+ * handlers that close the listener and exit the process.
+ */
 export async function startHttpServer(): Promise<void> {
   const config = loadConfig();
   const httpServer = createServer(async (request, response) => {

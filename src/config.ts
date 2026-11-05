@@ -7,13 +7,16 @@ export interface McpConfig {
   allowedOrigins: ReadonlySet<string>;
 }
 
-/** Parses a comma-separated environment variable into a normalized immutable set. */
+/** Parses trimmed, lowercase CSV entries into a set, using fallback when none remain. */
 function csvSet(value: string | undefined, fallback: string[]): ReadonlySet<string> {
   const values = value?.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
   return new Set(values?.length ? values : fallback);
 }
 
-/** Parses and validates a positive integer environment setting. */
+/**
+ * Parses an integer from 1 through 2,147,483,647, using fallback for missing or empty input.
+ * Throws if a supplied nonempty value is outside that range or is not an integer.
+ */
 function positiveInteger(value: string | undefined, fallback: number, name: string): number {
   if (value === undefined || value === "") return fallback;
   const parsed = Number(value);
@@ -23,7 +26,15 @@ function positiveInteger(value: string | undefined, fallback: number, name: stri
   return parsed;
 }
 
-/** Loads and validates public API, HTTP listener, host, and origin configuration. */
+/**
+ * Loads public API and HTTP settings from env, defaulting to process.env.
+ * API timeouts are in milliseconds; PORT takes precedence over MCP_HTTP_PORT, even if empty.
+ * Host and origin allowlists are trimmed and lowercased; empty lists use their defaults.
+ *
+ * @throws If the API URL is malformed, is not HTTP(S), or includes credentials,
+ * a query, or a fragment, or if a nonempty timeout or port is not an integer
+ * from 1 through 2,147,483,647.
+ */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): McpConfig {
   const apiBaseUrl = env.CM_API_BASE_URL ?? "https://publica.api.centralmacatuba.qzz.io";
   const parsedUrl = new URL(apiBaseUrl);
