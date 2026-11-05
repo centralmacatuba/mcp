@@ -42,7 +42,7 @@ A regra de migração é restritiva: uma ferramenta só é implementada quando e
 
 A ferramenta `tempo.listar` também está associada ao primeiro MCP App. Clientes sem suporte a Apps continuam recebendo o resultado textual da ferramenta.
 
-Os nomes antigos são preservados quando há correspondência clara. Os parâmetros são definidos individualmente a partir do OpenAPI (incluindo enums, tipos, campos obrigatórios, limites e formato de data). Algumas operações usam parâmetros fixos internos, como `funcao=tudo`, para manter a semântica do nome legado. A interface de argumentos usa um objeto `query`, validado por schema; isso difere dos parâmetros de topo do manifesto antigo e precisa ser considerado na migração.
+Os nomes antigos são preservados quando há correspondência clara. Os parâmetros são definidos individualmente a partir do OpenAPI (incluindo enums, tipos, campos obrigatórios, limites e formato de data). Algumas operações usam parâmetros fixos internos, como `funcao=tudo`, para manter a semântica do nome legado. Os argumentos são mantidos no nível superior, como no manifesto antigo, sempre que a operação tem equivalência. Os schemas Zod validam os campos antes de montar a query HTTP; parâmetros fixos internos preservam o comportamento de listar/obter/pesquisar.
 
 ## Fora da nova implementação por enquanto
 
