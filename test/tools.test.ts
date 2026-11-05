@@ -175,6 +175,7 @@ describe("API tool handler integration", () => {
       marker: "sdk-instance-context",
       async request(this: { marker: string }, endpoint: PublicEndpoint, query?: Record<string, unknown>) {
         expect(this.marker).toBe("sdk-instance-context");
+        if (!query) throw new Error("Expected tool query arguments.");
         calls.push({ endpoint, query });
         return { success: true, endpoint };
       }
