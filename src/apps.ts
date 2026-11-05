@@ -16,7 +16,7 @@ export const APP_RESOURCES = [
 export type AppResourceUri = (typeof APP_RESOURCES)[number]["uri"];
 
 /**
- * Reads an MCP App bundle from the source tree during development or dist/apps after build.
+ * Reads the compiled MCP App bundle first during development and from dist/apps after build.
  * Only missing-file errors trigger the fallback; permission and I/O errors remain visible.
  * Returns UTF-8 HTML. Rejects filenames outside APP_RESOURCES and rejects with
  * the last missing-file error as the cause when neither candidate exists.
@@ -26,7 +26,9 @@ export async function readAppHtml(file: string): Promise<string> {
     throw new Error(`MCP App HTML "${file}" não pertence à lista de recursos permitidos.`);
   }
   const isBuilt = fileURLToPath(import.meta.url).split(/[\\/]/).includes("dist");
-  const relativePaths = isBuilt ? [`./apps/${file}`, `../apps/${file}`] : [`../apps/${file}`, `./apps/${file}`];
+  const relativePaths = isBuilt
+    ? [`./apps/${file}`, `../apps/${file}`]
+    : [`../dist/apps/${file}`, `../apps/${file}`];
   let missingError: NodeJS.ErrnoException | undefined;
 
   for (const relativePath of relativePaths) {
