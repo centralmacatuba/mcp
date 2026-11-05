@@ -8,8 +8,6 @@ export function createMcpServer() {
     name: "centralmacatuba-mcp",
     version: "0.1.0",
     title: "Central Macatuba"
-  }, {
-    capabilities: { tools: {} }
   });
 
   registerTempoAppResource(server);
