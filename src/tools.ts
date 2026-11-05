@@ -85,7 +85,7 @@ const verifyStreaming = queryInput(z.object({
   id: positiveId.optional()
 }).refine((value) => value.funcao !== "uma" || value.id !== undefined, "Informe id quando funcao=uma."));
 const serviceByIdOrName = queryInput(z.object({
-  id: z.number().int().optional(),
+  id: positiveId.optional(),
   nome: text.optional()
 }).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."));
 
