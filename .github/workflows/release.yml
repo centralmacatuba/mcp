@@ -153,7 +153,7 @@ jobs:
             ...pkg.publishConfig,
             registry: process.env.GITHUB_PACKAGES_REGISTRY
           };
-          fs.writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\\n`);
+          fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + String.fromCharCode(10));
           NODE
 
           npm publish --registry="$GITHUB_PACKAGES_REGISTRY"
