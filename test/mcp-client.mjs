@@ -31,7 +31,15 @@ try {
   assert.ok(toolNames.has("calendario.gerar"), "The MCP client should discover calendar generation.");
 
   const { resources } = await client.listResources();
-  assert.equal(resources.length, 7, "The installed package should expose all seven MCP App resources.");
+  assert.equal(resources.length, 12, "The installed package should expose all twelve MCP App resources.");
+
+  for (const uri of [
+    "ui://centralmacatuba/calendario",
+    "ui://centralmacatuba/novidades",
+    "ui://centralmacatuba/servicos/docs",
+    "ui://centralmacatuba/servicos/jogos",
+    "ui://centralmacatuba/servicos/streaming"
+  ]) assert.ok(resources.some((resource) => resource.uri === uri), `Missing MCP App resource: ${uri}`);
 
   const tempoResource = resources.find(({ uri }) => uri === "ui://centralmacatuba/tempo");
   assert.ok(tempoResource, "The Tempo Macatuba MCP App resource should be discoverable.");
