@@ -17,7 +17,7 @@ features:
   - title: Dois transportes
     details: Execução local por STDIO ou serviço remoto por Streamable HTTP.
   - title: MCP Apps
-    details: Interfaces interativas autocontidas para Tempo, Serviços, Mapa, Jornal, Informações, Cursos e SOS.
+    details: Interfaces interativas autocontidas para Tempo, Serviços, Mapa, Jornal, Informações, Cursos, SOS, Calendário, Novidades, Docs, Jogos e Streaming.
 ---
 
 ## Sobre
