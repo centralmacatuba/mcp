@@ -4,7 +4,7 @@ Esta referência é gerada automaticamente a partir de `src/tools.ts` por `pnpm 
 
 > Execute `pnpm docs:generate` para atualizar esta página após modificar uma ferramenta.
 
-A matriz detalhada de compatibilidade e as restrições de segurança também estão em [Compatibilidade](./compatibility).
+A matriz detalhada de compatibilidade e as restrições de segurança também estão em [Compatibilidade](./compatibility). As associações entre ferramentas e interfaces estão em [Referência de MCP Apps](./apps).
 
 ## Ferramentas registradas
 
