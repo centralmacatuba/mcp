@@ -101,7 +101,7 @@ pnpm build
 pnpm test:package
 ```
 
-O projeto utiliza pnpm 12.12.1. O lockfile será versionado após a dependência pública `@centralmacatuba/api@^0.1.0` estar disponível no npm; o workflow manual de sincronização verifica essa condição antes de gerar o arquivo. O build compila o servidor e empacota as doze interfaces em `dist/apps/`.
+O projeto utiliza pnpm 12.12.1. Os quatro Apps de Serviços ficam em `apps/servicos/{cursos,docs,jogos,streaming}.html`, seguindo a mesma hierarquia de diretórios e URIs do catálogo do projeto. O lockfile será versionado após a dependência pública `@centralmacatuba/api@^0.1.0` estar disponível no npm; o workflow manual de sincronização verifica essa condição antes de gerar o arquivo. O build compila o servidor e empacota as doze interfaces em `dist/apps/`.
 
 ## Projeto e licença
 

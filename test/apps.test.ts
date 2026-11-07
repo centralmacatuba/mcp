@@ -11,7 +11,7 @@ describe("MCP App resources", () => {
       "ui://centralmacatuba/mapa",
       "ui://centralmacatuba/jornal",
       "ui://centralmacatuba/informacoes",
-      "ui://centralmacatuba/cursos",
+      "ui://centralmacatuba/servicos/cursos",
       "ui://centralmacatuba/sos",
       "ui://centralmacatuba/calendario",
       "ui://centralmacatuba/novidades",
@@ -21,8 +21,14 @@ describe("MCP App resources", () => {
     ]));
   });
 
-  it("uses only local standalone HTML resources", () => {
-    for (const app of APP_RESOURCES) {
+  it("uses the canonical source paths for service apps", () => {
+    expect(APP_RESOURCES.filter((app) => app.file.startsWith("servicos/")).map((app) => app.file)).toEqual([
+      "servicos/cursos.html",
+      "servicos/docs.html",
+      "servicos/jogos.html",
+      "servicos/streaming.html"
+    ]);
+    for (const app of APP_RESOURCES.filter((resource) => !resource.file.startsWith("servicos/"))) {
       expect(app.file).toMatch(/^[a-z]+\.html$/);
     }
   });

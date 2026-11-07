@@ -9,13 +9,13 @@ export const APP_RESOURCES = [
   { name: "Mapa Macatuba", uri: "ui://centralmacatuba/mapa", file: "mapa.html", description: "Consulta interativa de pontos e locais." },
   { name: "Jornal Macatuba", uri: "ui://centralmacatuba/jornal", file: "jornal.html", description: "Leitura das notícias publicadas." },
   { name: "Informações Macatuba", uri: "ui://centralmacatuba/informacoes", file: "informacoes.html", description: "Consulta de informações públicas." },
-  { name: "Cursos - Serviços Macatuba", uri: "ui://centralmacatuba/cursos", file: "cursos.html", description: "Consulta de cursos e conteúdos educacionais." },
+  { name: "Cursos - Serviços Macatuba", uri: "ui://centralmacatuba/servicos/cursos", file: "servicos/cursos.html", description: "Consulta de cursos e conteúdos educacionais." },
   { name: "SOS Macatuba", uri: "ui://centralmacatuba/sos", file: "sos.html", description: "Consulta informativa de alertas e orientações públicas." },
   { name: "Calendário Macatuba", uri: "ui://centralmacatuba/calendario", file: "calendario.html", description: "Calendário interativo com geração de calendário e consulta de eventos e datas." },
   { name: "Novidades", uri: "ui://centralmacatuba/novidades", file: "novidades.html", description: "Pesquisa novidades publicadas e consulta avisos ativos." },
-  { name: "Docs - Serviços Macatuba", uri: "ui://centralmacatuba/servicos/docs", file: "docs.html", description: "Pesquisa e consulta documentos publicados nos Serviços Macatuba." },
-  { name: "Jogos - Serviços Macatuba", uri: "ui://centralmacatuba/servicos/jogos", file: "jogos.html", description: "Pesquisa e consulta jogos do catálogo Serviços Macatuba." },
-  { name: "Streaming - Serviços Macatuba", uri: "ui://centralmacatuba/servicos/streaming", file: "streaming.html", description: "Consulta rádios, podcasts, TV, vídeos, câmeras e transmissões ao vivo." }
+  { name: "Docs - Serviços Macatuba", uri: "ui://centralmacatuba/servicos/docs", file: "servicos/docs.html", description: "Pesquisa e consulta documentos publicados nos Serviços Macatuba." },
+  { name: "Jogos - Serviços Macatuba", uri: "ui://centralmacatuba/servicos/jogos", file: "servicos/jogos.html", description: "Pesquisa e consulta jogos do catálogo Serviços Macatuba." },
+  { name: "Streaming - Serviços Macatuba", uri: "ui://centralmacatuba/servicos/streaming", file: "servicos/streaming.html", description: "Consulta rádios, podcasts, TV, vídeos, câmeras e transmissões ao vivo." }
 ] as const;
 
 export type AppResourceUri = (typeof APP_RESOURCES)[number]["uri"];

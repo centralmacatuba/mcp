@@ -4,9 +4,22 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 const appRoot = fileURLToPath(new URL("../apps/", import.meta.url));
 const outputDirectory = fileURLToPath(new URL("../dist/apps/", import.meta.url));
-const appNames = ["tempo", "servicos", "mapa", "jornal", "informacoes", "cursos", "sos", "calendario", "novidades", "docs", "jogos", "streaming"] as const;
+const appFiles = [
+  "tempo.html",
+  "servicos.html",
+  "mapa.html",
+  "jornal.html",
+  "informacoes.html",
+  "servicos/cursos.html",
+  "sos.html",
+  "calendario.html",
+  "novidades.html",
+  "servicos/docs.html",
+  "servicos/jogos.html",
+  "servicos/streaming.html"
+] as const;
 
-for (const [index, appName] of appNames.entries()) {
+for (const [index, appFile] of appFiles.entries()) {
   await build({
     configFile: false,
     root: appRoot,
@@ -14,7 +27,7 @@ for (const [index, appName] of appNames.entries()) {
     build: {
       target: "esnext",
       rollupOptions: {
-        input: { [appName]: fileURLToPath(new URL(`../apps/${appName}.html`, import.meta.url)) }
+        input: fileURLToPath(new URL(`../apps/${appFile}`, import.meta.url))
       },
       outDir: outputDirectory,
       emptyOutDir: index === 0,
