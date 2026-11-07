@@ -11,6 +11,11 @@ As interfaces são recursos UI associados às ferramentas correspondentes. São 
 | Informações | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
 | Cursos | `ui://centralmacatuba/cursos` | `servicos_cursos.verificar` |
 | SOS | `ui://centralmacatuba/sos` | `sos.listar` |
+| Calendário | `ui://centralmacatuba/calendario` | `calendario.gerar`, `calendario.verificar` |
+| Novidades | `ui://centralmacatuba/novidades` | `novidades.pesquisar`, `novidades.verificar`, `avisos.verificar` |
+| Docs - Serviços Macatuba | `ui://centralmacatuba/servicos/docs` | `servicos_docs.pesquisar`, `servicos_docs.verificar` |
+| Jogos - Serviços Macatuba | `ui://centralmacatuba/servicos/jogos` | `servicos_jogos.pesquisar`, `servicos_jogos.verificar` |
+| Streaming - Serviços Macatuba | `ui://centralmacatuba/servicos/streaming` | `servicos_streaming.pesquisar`, `servicos_streaming.verificar`, `servicos_streaming.live_verificar` |
 
 ## Compatibilidade
 
