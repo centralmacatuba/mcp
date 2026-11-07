@@ -4,7 +4,7 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 const appRoot = fileURLToPath(new URL("../apps/", import.meta.url));
 const outputDirectory = fileURLToPath(new URL("../dist/apps/", import.meta.url));
-const appNames = ["tempo", "servicos", "mapa", "jornal", "informacoes", "cursos", "sos"] as const;
+const appNames = ["tempo", "servicos", "mapa", "jornal", "informacoes", "cursos", "sos", "calendario", "novidades", "docs", "jogos", "streaming"] as const;
 
 for (const [index, appName] of appNames.entries()) {
   await build({
