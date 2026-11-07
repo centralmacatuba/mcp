@@ -73,7 +73,7 @@ jobs:
 
       - name: Create version PR or publish release
         id: changesets
-        uses: changesets/action@e0538e686673de0265c8a3e2904b8c76beaa43fd # v1.5.2
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           publish: pnpm release
           commit: "chore: update package versions"
@@ -82,11 +82,78 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to GitHub Packages
-        if: steps.changesets.outputs.published == 'true'
+      # Reconcile GitHub Packages on every successful run. This also recovers
+      # when npm publishing succeeded but the GitHub Packages step previously failed.
+      - name: Publish or reconcile GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PACKAGES_REGISTRY: https://npm.pkg.github.com
+        shell: bash
         run: |
+          set -euo pipefail
+
+          PACKAGE_NAME="$(node -p "require('./package.json').name")"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          NPM_REGISTRY="https://registry.npmjs.org/"
+
+          # Return 0 when the version exists, 1 only for a genuine 404,
+          # and 2 for registry/network/authentication failures.
+          registry_has_version() {
+            local registry="$1"
+            local error_file
+            error_file="$(mktemp)"
+
+            if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry="$registry" >/dev/null 2>"$error_file"; then
+              rm -f "$error_file"
+              return 0
+            fi
+
+            if grep -Eqi 'E404|404 Not Found|No match found' "$error_file"; then
+              rm -f "$error_file"
+              return 1
+            fi
+
+            cat "$error_file" >&2
+            rm -f "$error_file"
+            return 2
+          }
+
+          if registry_has_version "$NPM_REGISTRY"; then
+            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} is available on npm."
+          else
+            result=$?
+            if [[ "$result" -eq 1 ]]; then
+              echo "::notice::${PACKAGE_NAME}@${PACKAGE_VERSION} is not available on npm yet; skipping GitHub Packages."
+              exit 0
+            fi
+            echo "::error::Could not verify ${PACKAGE_NAME}@${PACKAGE_VERSION} on npm."
+            exit "$result"
+          fi
+
           npm config set //npm.pkg.github.com/:_authToken "$NODE_AUTH_TOKEN" --location=user
-          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.publishConfig={...p.publishConfig,registry:'https://npm.pkg.github.com'};fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
-          npm publish
+
+          if registry_has_version "$GITHUB_PACKAGES_REGISTRY"; then
+            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} already exists on GitHub Packages."
+            exit 0
+          else
+            result=$?
+            if [[ "$result" -ne 1 ]]; then
+              echo "::error::Could not verify ${PACKAGE_NAME}@${PACKAGE_VERSION} on GitHub Packages."
+              exit "$result"
+            fi
+          fi
+
+          # package.json pins npm as the primary registry. Change the publish-time
+          # registry explicitly because publishConfig can override --registry.
+          node <<'NODE'
+          const fs = require("node:fs");
+          const path = "package.json";
+          const pkg = JSON.parse(fs.readFileSync(path, "utf8"));
+          pkg.publishConfig = {
+            ...pkg.publishConfig,
+            registry: process.env.GITHUB_PACKAGES_REGISTRY
+          };
+          fs.writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\\n`);
+          NODE
+
+          npm publish --registry="$GITHUB_PACKAGES_REGISTRY"
