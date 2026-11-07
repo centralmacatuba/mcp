@@ -69,7 +69,7 @@ jobs:
         run: pnpm test:package
 
       - name: Verify package contents
-        run: npm pack --dry-run --ignore-scripts
+        run: pnpm pack --dry-run
 
       - name: Create version PR or publish release
         id: changesets
