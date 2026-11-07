@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { APP_RESOURCES, readAppHtml } from "../src/apps.js";
 
 describe("MCP App resources", () => {
-  it("registers seven unique UI resources", () => {
-    expect(APP_RESOURCES).toHaveLength(7);
-    expect(new Set(APP_RESOURCES.map((app) => app.uri)).size).toBe(7);
+  it("registers twelve unique UI resources", () => {
+    expect(APP_RESOURCES).toHaveLength(12);
+    expect(new Set(APP_RESOURCES.map((app) => app.uri)).size).toBe(12);
     expect(APP_RESOURCES.map((app) => app.uri)).toEqual(expect.arrayContaining([
       "ui://centralmacatuba/tempo",
       "ui://centralmacatuba/servicos",
@@ -12,7 +12,12 @@ describe("MCP App resources", () => {
       "ui://centralmacatuba/jornal",
       "ui://centralmacatuba/informacoes",
       "ui://centralmacatuba/cursos",
-      "ui://centralmacatuba/sos"
+      "ui://centralmacatuba/sos",
+      "ui://centralmacatuba/calendario",
+      "ui://centralmacatuba/novidades",
+      "ui://centralmacatuba/servicos/docs",
+      "ui://centralmacatuba/servicos/jogos",
+      "ui://centralmacatuba/servicos/streaming"
     ]));
   });
 
