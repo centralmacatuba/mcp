@@ -80,7 +80,7 @@ Consulte [configuração de clientes](docs/clientes.md) para exemplos de conexã
 
 ## MCP Apps
 
-As interfaces usam o SDK oficial `@modelcontextprotocol/ext-apps` e são associadas às ferramentas correspondentes: Tempo, Serviços, Mapa, Jornal, Informações, Cursos e SOS. Cada interface é empacotada em um HTML autocontido, sem depender de CDN em tempo de execução. Clientes compatíveis recebem uma experiência interativa; clientes sem suporte a Apps continuam recebendo conteúdo textual e `structuredContent` das ferramentas.
+As interfaces usam o SDK oficial `@modelcontextprotocol/ext-apps` e são associadas às ferramentas correspondentes: Tempo, Serviços, Mapa, Jornal, Informações, Cursos, SOS, Calendário, Novidades, Docs, Jogos e Streaming. Cada interface é empacotada em um HTML autocontido, sem depender de CDN em tempo de execução. Clientes compatíveis recebem uma experiência interativa; clientes sem suporte a Apps continuam recebendo conteúdo textual e `structuredContent` das ferramentas.
 
 ## Transporte e migração
 
@@ -101,7 +101,7 @@ pnpm build
 pnpm test:package
 ```
 
-O projeto utiliza pnpm 12.12.1. O lockfile será versionado após a dependência pública `@centralmacatuba/api@^0.1.0` estar disponível no npm; o workflow manual de sincronização verifica essa condição antes de gerar o arquivo. O build compila o servidor e empacota as sete interfaces em `dist/apps/`.
+O projeto utiliza pnpm 12.12.1. O lockfile será versionado após a dependência pública `@centralmacatuba/api@^0.1.0` estar disponível no npm; o workflow manual de sincronização verifica essa condição antes de gerar o arquivo. O build compila o servidor e empacota as doze interfaces em `dist/apps/`.
 
 ## Projeto e licença
 
