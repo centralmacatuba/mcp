@@ -113,6 +113,18 @@ describe("public MCP tools", () => {
     expect(find("servicos.listar")?.appUri).toBe("ui://centralmacatuba/servicos");
     expect(find("servicos_cursos.verificar")?.appUri).toBe("ui://centralmacatuba/cursos");
     expect(find("sos.listar")?.appUri).toBe("ui://centralmacatuba/sos");
+    expect(find("avisos.verificar")?.appUri).toBe("ui://centralmacatuba/novidades");
+    expect(find("calendario.verificar")?.appUri).toBe("ui://centralmacatuba/calendario");
+    expect(find("calendario.gerar")?.appUri).toBe("ui://centralmacatuba/calendario");
+    expect(find("novidades.pesquisar")?.appUri).toBe("ui://centralmacatuba/novidades");
+    expect(find("novidades.verificar")?.appUri).toBe("ui://centralmacatuba/novidades");
+    expect(find("servicos_docs.pesquisar")?.appUri).toBe("ui://centralmacatuba/servicos/docs");
+    expect(find("servicos_docs.verificar")?.appUri).toBe("ui://centralmacatuba/servicos/docs");
+    expect(find("servicos_jogos.pesquisar")?.appUri).toBe("ui://centralmacatuba/servicos/jogos");
+    expect(find("servicos_jogos.verificar")?.appUri).toBe("ui://centralmacatuba/servicos/jogos");
+    expect(find("servicos_streaming.pesquisar")?.appUri).toBe("ui://centralmacatuba/servicos/streaming");
+    expect(find("servicos_streaming.verificar")?.appUri).toBe("ui://centralmacatuba/servicos/streaming");
+    expect(find("servicos_streaming.live_verificar")?.appUri).toBe("ui://centralmacatuba/servicos/streaming");
   });
 });
 
