@@ -123,8 +123,6 @@ describe("public MCP tools", () => {
     expect(find("servicos.listar")?.endpoint).toBe("/api/servicos/pesquisar");
     expect(find("servicos.listar")?.fixedQuery).toBeUndefined();
     expect(find("sos.listar")?.endpoint).toBe("/api/sos/listar_alertas");
-    expect(find("sos.listar")?.requestHeaders?.({ notificacaoAceita: true })).toEqual({ "X-CM-SOS-PERMISSION": "granted" });
-    expect(find("sos.listar")?.requestHeaders?.({ notificacaoAceita: false })).toBeUndefined();
     expect(find("tempo.listar")?.appUri).toBe("ui://centralmacatuba/tempo");
     expect(find("mapa.listar")?.appUri).toBe("ui://centralmacatuba/mapa");
     expect(find("jornal.listar")?.appUri).toBe("ui://centralmacatuba/jornal");
@@ -224,6 +222,39 @@ describe("API tool handler integration", () => {
     }]);
     expect(result).toMatchObject({
       structuredContent: { success: true, endpoint: "/api/calendario/gerar" }
+    });
+  });
+
+  it("sends the SOS permission header only after explicit consent", async () => {
+    const handlers = new Map<string, (args: unknown) => Promise<unknown>>();
+    const fakeServer = {
+      registerTool(name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) {
+        handlers.set(name, handler);
+      }
+    } as unknown as McpServer;
+    const calls: Array<{ endpoint: PublicEndpoint; query?: Record<string, unknown>; options?: { headers?: HeadersInit } }> = [];
+    const api = {
+      async request(endpoint: PublicEndpoint, query?: Record<string, unknown>, options?: { headers?: HeadersInit }) {
+        calls.push({ endpoint, query, options });
+        return { success: true };
+      }
+    } as unknown as CentralMacatubaSDK;
+    registerApiTools(fakeServer, api);
+    const handler = handlers.get("sos.listar");
+    expect(handler).toBeDefined();
+
+    await handler!({ page: 1, limit: 2, notificacaoAceita: true });
+    expect(calls[0]).toEqual({
+      endpoint: "/api/sos/listar_alertas",
+      query: { page: 1, limit: 2 },
+      options: { headers: { "X-CM-SOS-PERMISSION": "granted" } }
+    });
+
+    await handler!({ page: 1, limit: 2, notificacaoAceita: false });
+    expect(calls[1]).toEqual({
+      endpoint: "/api/sos/listar_alertas",
+      query: { page: 1, limit: 2 },
+      options: undefined
     });
   });
 });
