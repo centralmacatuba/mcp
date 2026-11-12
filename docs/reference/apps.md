@@ -17,7 +17,11 @@ As interfaces são recursos UI associados às ferramentas correspondentes. São 
 | Jogos - Serviços Macatuba | `ui://centralmacatuba/servicos/jogos` | `servicos_jogos.pesquisar`, `servicos_jogos.verificar` |
 | Streaming - Serviços Macatuba | `ui://centralmacatuba/servicos/streaming` | `servicos_streaming.pesquisar`, `servicos_streaming.verificar`, `servicos_streaming.live_verificar` |
 
-## Paginação e consentimento\n\nAs interfaces de catálogo permitem navegar por `page` e `limit` quando a ferramenta associada oferece paginação. A interface SOS só envia a preferência `X-CM-SOS-PERMISSION: granted` quando o usuário marca explicitamente a opção de consentimento.\n\n## Compatibilidade
+## Paginação e consentimento
+
+As interfaces de catálogo permitem navegar por `page` e `limit` quando a ferramenta associada oferece paginação. A interface SOS só envia a preferência `X-CM-SOS-PERMISSION: granted` quando o usuário marca explicitamente a opção de consentimento.
+
+## Compatibilidade
 
 Clientes que implementam MCP Apps podem renderizar a interface interativa. Clientes sem suporte a Apps continuam podendo utilizar as ferramentas e receber seus conteúdos textuais/estruturados.
 
