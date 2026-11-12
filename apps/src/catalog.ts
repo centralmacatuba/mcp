@@ -7,7 +7,75 @@ const status = document.querySelector<HTMLElement>("#status");
 const results = document.querySelector<HTMLElement>("#results");
 const raw = document.querySelector<HTMLElement>("#raw");
 const button = document.querySelector<HTMLButtonElement>("#load");
-const app = new App({ name: appName, version: "1.0.0" });
+const app = new App({ name: appName, version: "1.1.0" });
+
+const paginatedTools = new Set([
+  "tempo.listar", "servicos.listar", "mapa.listar",
+  "jornal.listar", "informacoes.listar", "sos.listar"
+]);
+const supportsPagination = paginatedTools.has(toolName);
+const supportsSosConsent = toolName === "sos.listar";
+
+let pageInput: HTMLInputElement | undefined;
+let limitInput: HTMLInputElement | undefined;
+let pageInfo: HTMLElement | undefined;
+let previousButton: HTMLButtonElement | undefined;
+let nextButton: HTMLButtonElement | undefined;
+let consentInput: HTMLInputElement | undefined;
+
+if (root && supportsPagination) {
+  const controls = document.createElement("div");
+  controls.className = "pagination";
+  controls.setAttribute("aria-label", "Paginação");
+  controls.style.cssText = "display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:16px 0";
+
+  const makeNumberField = (labelText: string, id: string, min: number, max?: number) => {
+    const label = document.createElement("label");
+    label.style.cssText = "display:grid;gap:4px;min-width:100px;font-size:.9rem";
+    label.textContent = labelText;
+    const input = document.createElement("input");
+    input.id = id;
+    input.type = "number";
+    input.min = String(min);
+    if (max !== undefined) input.max = String(max);
+    input.value = id === "cm-page" ? "1" : "20";
+    input.style.cssText = "max-width:130px;padding:8px;border:1px solid var(--color-border,#888);border-radius:8px;background:transparent;color:inherit;font:inherit";
+    label.append(input);
+    controls.append(label);
+    return input;
+  };
+
+  pageInput = makeNumberField("Página", "cm-page", 1);
+  limitInput = makeNumberField("Itens por página", "cm-limit", 1, 100);
+  previousButton = document.createElement("button");
+  previousButton.type = "button";
+  previousButton.textContent = "Anterior";
+  previousButton.disabled = true;
+  nextButton = document.createElement("button");
+  nextButton.type = "button";
+  nextButton.textContent = "Próxima";
+  pageInfo = document.createElement("span");
+  pageInfo.className = "muted";
+  pageInfo.setAttribute("aria-live", "polite");
+  controls.append(previousButton, nextButton, pageInfo);
+  if (status) root.insertBefore(controls, status);
+  else if (button) root.insertBefore(controls, button);
+  limitInput.addEventListener("change", () => { if (pageInput) pageInput.value = "1"; });
+}
+
+if (root && supportsSosConsent) {
+  const consentLabel = document.createElement("label");
+  consentLabel.style.cssText = "display:flex;gap:9px;align-items:flex-start;margin:14px 0;font-size:.9rem";
+  consentInput = document.createElement("input");
+  consentInput.type = "checkbox";
+  consentInput.id = "sos-notification-consent";
+  consentInput.style.cssText = "margin-top:4px";
+  const consentText = document.createElement("span");
+  consentText.textContent = "Confirmo que o usuário declarou aceitar a preferência de notificações SOS. Isso apenas informa a preferência nesta consulta; não realiza inscrição.";
+  consentLabel.append(consentInput, consentText);
+  if (status) root.insertBefore(consentLabel, status);
+  else if (button) root.insertBefore(consentLabel, button);
+}
 
 /** Updates the status text and state when the status element exists. */
 function setStatus(message: string, state: "idle" | "success" | "error" = "idle"): void {
@@ -31,7 +99,6 @@ function extractPayload(response: any): unknown {
 /**
  * Builds a detached text-only view, limiting expanded collections to 100 entries.
  * depth counts nesting from zero; objects at depth five or greater become JSON text.
- * JSON serialization errors, such as circular references at that boundary, propagate.
  */
 function renderValue(value: unknown, depth = 0): HTMLElement {
   if (value === null || value === undefined) {
@@ -86,34 +153,63 @@ function renderValue(value: unknown, depth = 0): HTMLElement {
   return object;
 }
 
-/**
- * Replaces results, updates raw output when present, and marks the query successful.
- * Does nothing without a results element; tool errors and serialization failures propagate.
- */
+/** Updates the pagination summary when the endpoint returns body pagination metadata. */
+function updatePagination(payload: any): void {
+  if (!supportsPagination || !pageInput || !limitInput || !pageInfo || !previousButton || !nextButton) return;
+  const metadata = payload?.paginacao ?? payload?.pagination;
+  const currentPage = Number(metadata?.pagina ?? metadata?.page ?? pageInput.value);
+  const limit = Number(metadata?.limite ?? metadata?.limit ?? limitInput.value);
+  const total = metadata?.total;
+  const totalPages = metadata?.total_paginas ?? metadata?.totalPages;
+  const hasPrevious = metadata?.hasPreviousPage ?? currentPage > 1;
+  const hasNext = metadata?.hasNextPage ?? (typeof totalPages === "number" ? currentPage < totalPages : true);
+  pageInput.value = String(currentPage);
+  if (Number.isFinite(limit) && limit > 0) limitInput.value = String(limit);
+  pageInfo.textContent = typeof total === "number" && typeof totalPages === "number"
+    ? `Página ${currentPage} de ${totalPages} · ${total} registros`
+    : `Página ${currentPage} · ${limit} itens por página`;
+  previousButton.disabled = !hasPrevious;
+  nextButton.disabled = !hasNext;
+}
+
+/** Renders the API collection and keeps pagination metadata visible without discarding the raw response. */
 function render(response: unknown): void {
   if (!results) return;
-  const value = extractPayload(response);
-  results.replaceChildren(renderValue(value));
-  if (raw) raw.textContent = JSON.stringify(value, null, 2) ?? String(value);
+  const structured = extractPayload(response) as any;
+  const payload = structured && typeof structured === "object" && !Array.isArray(structured) && Object.hasOwn(structured, "result")
+    ? structured.result
+    : structured;
+  const collection = payload && typeof payload === "object" && !Array.isArray(payload)
+    ? ["data", "itens", "eventos", "alertas", "registros", "items", "results"].map((key) => payload[key]).find(Array.isArray) ?? payload
+    : payload;
+  results.replaceChildren(renderValue(collection));
+  if (raw) raw.textContent = JSON.stringify(structured, null, 2) ?? String(structured);
+  updatePagination(payload);
   setStatus("Consulta concluída.", "success");
 }
 
 /**
- * Calls the configured tool with nonempty trimmed form values, converting numeric fields.
- * Disables the button during the request and restores it afterward; request and rendering
- * failures show a generic error status. Does nothing without a tool name or button.
+ * Calls the configured tool with nonempty trimmed form values and numeric pagination.
+ * SOS consent is included only when the user explicitly checks the consent control.
  */
 async function runTool(): Promise<void> {
   if (!toolName || !button) return;
   button.disabled = true;
+  if (previousButton) previousButton.disabled = true;
+  if (nextButton) nextButton.disabled = true;
   setStatus("Consultando dados…");
   results?.replaceChildren();
-  const args: Record<string, string | number> = {};
+  const args: Record<string, string | number | boolean> = {};
   root?.querySelectorAll<HTMLInputElement | HTMLSelectElement>("[data-param]").forEach((field) => {
     const value = field.value.trim();
     if (!value) return;
     args[field.dataset.param!] = field.dataset.type === "number" ? Number(value) : value;
   });
+  if (supportsPagination && pageInput && limitInput) {
+    args.page = Math.max(1, Number(pageInput.value || 1));
+    args.limit = Math.min(100, Math.max(1, Number(limitInput.value || 20)));
+  }
+  if (supportsSosConsent && consentInput?.checked) args.notificacaoAceita = true;
   try {
     render(await app.callServerTool({ name: toolName, arguments: args }));
   } catch {
@@ -122,6 +218,17 @@ async function runTool(): Promise<void> {
     button.disabled = false;
   }
 }
+
+previousButton?.addEventListener("click", () => {
+  if (!pageInput) return;
+  pageInput.value = String(Math.max(1, Number(pageInput.value || 1) - 1));
+  void runTool();
+});
+nextButton?.addEventListener("click", () => {
+  if (!pageInput) return;
+  pageInput.value = String(Number(pageInput.value || 1) + 1);
+  void runTool();
+});
 
 app.ontoolinput = () => { if (button) button.disabled = true; setStatus("Consultando dados…"); };
 app.ontoolresult = (response) => {
