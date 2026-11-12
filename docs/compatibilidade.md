@@ -54,7 +54,12 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `ui://centralmacatuba/jornal` | `jornal.listar` |
 | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
 | `ui://centralmacatuba/servicos/cursos` | `servicos_cursos.pesquisar`, `servicos_cursos.verificar` |
-| `ui://centralmacatuba/sos` | `sos.listar` |\n| `ui://centralmacatuba/calendario` | `calendario.gerar`, `calendario.verificar` |\n| `ui://centralmacatuba/novidades` | `novidades.pesquisar`, `novidades.verificar`, `avisos.verificar` |\n| `ui://centralmacatuba/servicos/docs` | `servicos_docs.pesquisar`, `servicos_docs.verificar` |\n| `ui://centralmacatuba/servicos/jogos` | `servicos_jogos.pesquisar`, `servicos_jogos.verificar` |\n| `ui://centralmacatuba/servicos/streaming` | `servicos_streaming.pesquisar`, `servicos_streaming.verificar`, `servicos_streaming.live_verificar` |
+| `ui://centralmacatuba/sos` | `sos.listar` |
+| `ui://centralmacatuba/calendario` | `calendario.gerar`, `calendario.verificar` |
+| `ui://centralmacatuba/novidades` | `novidades.pesquisar`, `novidades.verificar`, `avisos.verificar` |
+| `ui://centralmacatuba/servicos/docs` | `servicos_docs.pesquisar`, `servicos_docs.verificar` |
+| `ui://centralmacatuba/servicos/jogos` | `servicos_jogos.pesquisar`, `servicos_jogos.verificar` |
+| `ui://centralmacatuba/servicos/streaming` | `servicos_streaming.pesquisar`, `servicos_streaming.verificar`, `servicos_streaming.live_verificar` |
 
 As doze interfaces são empacotadas como HTML autocontido durante o build. Seus scripts usam o pacote oficial de MCP Apps incluído nas dependências do servidor, sem carregar bibliotecas de terceiros por CDN em tempo de execução.
 
