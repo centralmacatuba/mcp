@@ -47,14 +47,14 @@ describe("registered API tool handlers", () => {
   });
 
   it("maps explicit SOS notification consent to the OpenAPI header, never a cookie or query parameter", async () => {
-    request.mockResolvedValue({ items: [] });
+    requestWithMetadata.mockResolvedValue({ items: [] });
     await call("sos.listar", { page: 2, limit: 30, notificacaoAceita: true });
     expect(requestWithMetadata).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 2, limit: 30 }, {
       headers: { "X-CM-SOS-PERMISSION": "granted" }
     });
     requestWithMetadata.mockClear();
     await call("sos.listar", { page: 1, notificacaoAceita: false });
-    expect(request).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 1 });
+    expect(requestWithMetadata).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 1 });
   });
 
   it.each([
@@ -78,7 +78,7 @@ describe("registered API tool handlers", () => {
   ])("wraps a non-object result in structured content", async (value, text) => {
     requestWithMetadata.mockResolvedValue({ data: value, headers: new Headers() });
     expect(await call("ping", null)).toEqual({ content: [{ type: "text", text }], structuredContent: { data: value } });
-    expect(request).toHaveBeenCalledWith("/", {});
+    expect(requestWithMetadata).toHaveBeenCalledWith("/", {});
   });
 
   it("serializes bigint values in text output", async () => {
@@ -101,7 +101,7 @@ describe("registered API tool handlers", () => {
     requestWithMetadata.mockResolvedValue({ data: new Blob(["png"], { type: "image/png" }), headers: new Headers() });
     const png = await call("calendario.gerar", { ano: 2026, formato: "png" });
     const data = Buffer.from("png").toString("base64");
-    expect(request).toHaveBeenCalledWith("/api/calendario/gerar", { ano: 2026, formato: "png" });
+    expect(requestWithMetadata).toHaveBeenCalledWith("/api/calendario/gerar", { ano: 2026, formato: "png" });
     expect(png.content).toEqual([
       { type: "image", data, mimeType: "image/png" },
       { type: "resource", resource: { uri: "urn:centralmacatuba:calendario:calendario-2026.png", mimeType: "image/png", blob: data } }
