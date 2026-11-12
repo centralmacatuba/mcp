@@ -12,15 +12,15 @@ type Handler = (args: unknown) => Promise<ToolResult>;
 
 describe("registered API tool handlers", () => {
   const handlers = new Map<string, Handler>();
-  const request = vi.fn();
+  const requestWithMetadata = vi.fn();
 
   beforeEach(() => {
     handlers.clear();
-    request.mockReset();
+    requestWithMetadata.mockReset();
     const server = {
       registerTool: (name: string, _config: unknown, handler: Handler) => handlers.set(name, handler)
     } as unknown as McpServer;
-    registerApiTools(server, { request } as unknown as CentralMacatubaSDK);
+    registerApiTools(server, { requestWithMetadata } as unknown as CentralMacatubaSDK);
   });
 
   async function call(name: string, args: unknown = {}) {
@@ -31,9 +31,9 @@ describe("registered API tool handlers", () => {
 
   it("registers every public tool and forwards validated queries with fixed operations", async () => {
     expect([...handlers.keys()]).toEqual(registeredToolNames);
-    request.mockResolvedValue({ items: ["example"] });
+    requestWithMetadata.mockResolvedValue({ data: { items: ["example"] }, headers: new Headers() });
     const result = await call("servicos.obter", { id: 7, funcao: "tudo", ignored: "value" });
-    expect(request).toHaveBeenCalledWith("/api/servicos/verificar", { id: 7, funcao: "uma" });
+    expect(requestWithMetadata).toHaveBeenCalledWith("/api/servicos/verificar", { id: 7, funcao: "uma" });
     expect(result).toEqual({
       content: [{ type: "text", text: JSON.stringify({ items: ["example"] }, null, 2) }],
       structuredContent: { items: ["example"] }
@@ -41,18 +41,18 @@ describe("registered API tool handlers", () => {
   });
 
   it("forwards the new paginated services search contract", async () => {
-    request.mockResolvedValue({ items: [] });
+    requestWithMetadata.mockResolvedValue({ data: { items: [] }, headers: new Headers() });
     await call("servicos.pesquisar", { q: "cultura", campo: "nome", page: 2, limit: 50 });
-    expect(request).toHaveBeenCalledWith("/api/servicos/pesquisar", { q: "cultura", campo: "nome", page: 2, limit: 50 });
+    expect(requestWithMetadata).toHaveBeenCalledWith("/api/servicos/pesquisar", { q: "cultura", campo: "nome", page: 2, limit: 50 });
   });
 
   it("maps explicit SOS notification consent to the OpenAPI header, never a cookie or query parameter", async () => {
     request.mockResolvedValue({ items: [] });
     await call("sos.listar", { page: 2, limit: 30, notificacaoAceita: true });
-    expect(request).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 2, limit: 30 }, {
+    expect(requestWithMetadata).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 2, limit: 30 }, {
       headers: { "X-CM-SOS-PERMISSION": "granted" }
     });
-    request.mockClear();
+    requestWithMetadata.mockClear();
     await call("sos.listar", { page: 1, notificacaoAceita: false });
     expect(request).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 1 });
   });
@@ -67,7 +67,7 @@ describe("registered API tool handlers", () => {
       isError: true,
       content: [{ type: "text", text: "Os parâmetros informados não são válidos para esta ferramenta." }]
     });
-    expect(request).not.toHaveBeenCalled();
+    expect(requestWithMetadata).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -76,21 +76,21 @@ describe("registered API tool handlers", () => {
     [42, "42"],
     [undefined, "undefined"]
   ])("wraps a non-object result in structured content", async (value, text) => {
-    request.mockResolvedValue(value);
+    requestWithMetadata.mockResolvedValue({ data: value, headers: new Headers() });
     expect(await call("ping", null)).toEqual({ content: [{ type: "text", text }], structuredContent: { data: value } });
     expect(request).toHaveBeenCalledWith("/", {});
   });
 
   it("serializes bigint values in text output", async () => {
-    request.mockResolvedValue({ count: 12n });
+    requestWithMetadata.mockResolvedValue({ data: { count: 12n }, headers: new Headers() });
     const result = await call("ping");
     expect(result.content[0]?.text).toBe('{\n  "count": "12"\n}');
   });
 
   it("bounds serialized output at 100,000 characters", async () => {
-    request.mockResolvedValue("x".repeat(99_998));
+    requestWithMetadata.mockResolvedValue({ data: "x".repeat(99_998), headers: new Headers() });
     expect((await call("ping")).isError).toBeUndefined();
-    request.mockResolvedValue("x".repeat(99_999));
+    requestWithMetadata.mockResolvedValue({ data: "x".repeat(99_999), headers: new Headers() });
     expect(await call("ping")).toEqual({
       isError: true,
       content: [{ type: "text", text: "A resposta excedeu o limite de tamanho permitido para uma ferramenta MCP." }]
@@ -98,7 +98,7 @@ describe("registered API tool handlers", () => {
   });
 
   it("converts calendar binary output and rejects unexpected or unsupported files", async () => {
-    request.mockResolvedValue(new Blob(["png"], { type: "image/png" }));
+    requestWithMetadata.mockResolvedValue({ data: new Blob(["png"], { type: "image/png" }), headers: new Headers() });
     const png = await call("calendario.gerar", { ano: 2026, formato: "png" });
     const data = Buffer.from("png").toString("base64");
     expect(request).toHaveBeenCalledWith("/api/calendario/gerar", { ano: 2026, formato: "png" });
@@ -107,7 +107,7 @@ describe("registered API tool handlers", () => {
       { type: "resource", resource: { uri: "urn:centralmacatuba:calendario:calendario-2026.png", mimeType: "image/png", blob: data } }
     ]);
     expect(await call("ping")).toMatchObject({ isError: true, content: [{ text: expect.stringContaining("não oferece") }] });
-    request.mockResolvedValue(new Blob(["x"], { type: "text/plain" }));
+    requestWithMetadata.mockResolvedValue({ data: new Blob(["x"], { type: "text/plain" }), headers: new Headers() });
     expect(await call("calendario.gerar")).toMatchObject({ isError: true, content: [{ text: "Formato binário de calendário não suportado." }] });
   });
 
@@ -116,7 +116,7 @@ describe("registered API tool handlers", () => {
     [new Error("sensitive details"), ""],
     [{ status: "503" }, ""]
   ])("returns a sanitized API failure", async (error, status) => {
-    request.mockRejectedValue(error);
+    requestWithMetadata.mockRejectedValue(error);
     expect(await call("ping")).toEqual({
       isError: true,
       content: [{ type: "text", text: `A consulta à API pública falhou${status}. Verifique os parâmetros ou tente novamente mais tarde.` }]
