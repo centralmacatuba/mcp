@@ -215,6 +215,32 @@ export async function createCalendarFileContent(blob: Blob, ano?: number) {
 }
 
 /** Serializes tool results consistently, converting bigint values to strings. */
+function readPaginationHeaders(headers: Headers): Record<string, number | boolean> | undefined {
+  const pagination: Record<string, number | boolean> = {};
+  const numericHeaders: Record<string, string> = {
+    "x-page": "page",
+    "x-per-page": "limit",
+    "x-total-count": "total",
+    "x-total-pages": "totalPages"
+  };
+  for (const [header, key] of Object.entries(numericHeaders)) {
+    const value = headers.get(header);
+    if (value === null) continue;
+    const number = Number(value);
+    if (Number.isFinite(number) && number >= 0) pagination[key] = number;
+  }
+  const booleanHeaders: Record<string, string> = {
+    "x-has-next-page": "hasNextPage",
+    "x-has-previous-page": "hasPreviousPage"
+  };
+  for (const [header, key] of Object.entries(booleanHeaders)) {
+    const value = headers.get(header);
+    if (value === null) continue;
+    pagination[key] = /^(?:true|1)$/i.test(value.trim());
+  }
+  return Object.keys(pagination).length ? pagination : undefined;
+}
+
 function jsonText(value: unknown): string {
   return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : item, 2) ?? String(value);
 }
@@ -241,17 +267,18 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
       try {
         // A rota é estática, os argumentos seguem schemas Zod derivados do OpenAPI,
         // e o SDK ainda valida a allowlist pública antes de enviar a requisição.
-        const request = api.request.bind(api) as unknown as (
+        const requestWithMetadata = api.requestWithMetadata.bind(api) as unknown as (
           endpoint: PublicEndpoint,
           query?: ToolQuery,
           options?: { headers?: HeadersInit }
-        ) => Promise<unknown>;
+        ) => Promise<{ data: unknown; headers: Headers }>;
         const query = { ...args, ...(definition.fixedQuery ?? {}) };
         const requestHeaders = definition.requestHeaders?.(args);
         if (definition.requestHeaders) delete query.notificacaoAceita;
-        const result = requestHeaders
-          ? await request(definition.endpoint, query, { headers: requestHeaders })
-          : await request(definition.endpoint, query);
+        const response = requestHeaders
+          ? await requestWithMetadata(definition.endpoint, query, { headers: requestHeaders })
+          : await requestWithMetadata(definition.endpoint, query);
+        const result = response.data;
         if (result instanceof Blob) {
           if (definition.name !== "calendario.gerar") {
             return {
@@ -278,16 +305,20 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
             };
           }
         }
-        const serialized = jsonText(result);
+        const baseStructuredContent = result !== null && typeof result === "object" && !Array.isArray(result)
+          ? result as Record<string, unknown>
+          : { data: result };
+        const pagination = readPaginationHeaders(response.headers);
+        const structuredContent = pagination
+          ? { ...baseStructuredContent, pagination }
+          : baseStructuredContent;
+        const serialized = jsonText(structuredContent);
         if (serialized.length > MAX_TOOL_OUTPUT_CHARS) {
           return {
             isError: true,
             content: [{ type: "text" as const, text: "A resposta excedeu o limite de tamanho permitido para uma ferramenta MCP." }]
           };
         }
-        const structuredContent = result !== null && typeof result === "object" && !Array.isArray(result)
-          ? result as Record<string, unknown>
-          : { data: result };
         return {
           content: [{ type: "text" as const, text: serialized }],
           structuredContent
