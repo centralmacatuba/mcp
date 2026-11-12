@@ -158,7 +158,7 @@ function renderValue(value: unknown, depth = 0): HTMLElement {
 /** Updates the pagination summary when the endpoint returns body pagination metadata. */
 function updatePagination(payload: any): void {
   if (!supportsPagination || !pageInput || !limitInput || !pageInfo || !previousButton || !nextButton) return;
-  const metadata = payload?.paginacao ?? payload?.pagination;
+  const metadata = payload?.pagination ?? payload?.paginacao;
   const currentPage = Number(metadata?.pagina ?? metadata?.page ?? pageInput.value);
   const limit = Number(metadata?.limite ?? metadata?.limit ?? limitInput.value);
   const total = metadata?.total;
