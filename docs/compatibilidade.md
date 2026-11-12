@@ -49,7 +49,7 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | Recurso UI | Ferramenta |
 | --- | --- |
 | `ui://centralmacatuba/tempo` | `tempo.listar` |
-| `ui://centralmacatuba/servicos` | `servicos.listar` |
+| `ui://centralmacatuba/servicos` | `servicos.listar`, `servicos.pesquisar` |
 | `ui://centralmacatuba/mapa` | `mapa.listar` |
 | `ui://centralmacatuba/jornal` | `jornal.listar` |
 | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
