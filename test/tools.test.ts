@@ -53,13 +53,16 @@ describe("public MCP tools", () => {
 
     expect(schema("informacoes.pesquisar").safeParse({ p: "saúde" }).success).toBe(true);
     expect(schema("informacoes.pesquisar").safeParse({}).success).toBe(true);
-    expect(schema("mapa.pesquisar").safeParse({}).success).toBe(true);
+    expect(schema("mapa.pesquisar").safeParse({}).success).toBe(false);
     expect(schema("mapa.pesquisar").safeParse({ q: "" }).success).toBe(false);
     expect(schema("mapa.pesquisar").safeParse({ min_lat: -90, min_lng: -180, max_lat: 90, max_lng: 180, zoom: 22, page: 1, limit: 100 }).success).toBe(true);
+    expect(schema("mapa.pesquisar").safeParse({ q: "praça", min_lat: -90 }).success).toBe(false);
     expect(schema("mapa.pesquisar").safeParse({ zoom: 23 }).success).toBe(false);
 
     expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "radio" }).success).toBe(true);
     expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "music" }).success).toBe(false);
+    expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "radio", filtro: "qualidade" }).success).toBe(false);
+    expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "tv", filtro: "qualidade" }).success).toBe(true);
 
     expect(schema("calendario.verificar").safeParse({ data: "2026-11-05" }).success).toBe(true);
     expect(schema("calendario.verificar").safeParse({ data: "05/11/2026" }).success).toBe(false);
@@ -101,6 +104,7 @@ describe("public MCP tools", () => {
     expect(schema("sos.listar").safeParse({}).success).toBe(true);
     expect(schema("links.verificar").safeParse({ funcao: "tudo" }).success).toBe(true);
     expect(schema("links.verificar").safeParse({ funcao: "uma", id: 4 }).success).toBe(true);
+    expect(schema("links.verificar").safeParse({ funcao: "pendentes" }).success).toBe(true);
     expect(schema("links.verificar").safeParse({ funcao: "uma" }).success).toBe(false);
     expect(schema("links.verificar").safeParse({ funcao: "pendentes" }).success).toBe(false);
     expect(schema("novidades.verificar").safeParse({ funcao: "uma", id: 4 }).success).toBe(true);
@@ -116,7 +120,11 @@ describe("public MCP tools", () => {
     expect(find("jornal.listar")?.fixedQuery).toEqual({ funcao: "todas" });
     expect(find("jornal.obter")?.fixedQuery).toEqual({ funcao: "uma" });
     expect(find("servicos.pesquisar")?.endpoint).toBe("/api/servicos/pesquisar");
+    expect(find("servicos.listar")?.endpoint).toBe("/api/servicos/pesquisar");
+    expect(find("servicos.listar")?.fixedQuery).toBeUndefined();
     expect(find("sos.listar")?.endpoint).toBe("/api/sos/listar_alertas");
+    expect(find("sos.listar")?.requestHeaders?.({ notificacaoAceita: true })).toEqual({ "X-CM-SOS-PERMISSION": "granted" });
+    expect(find("sos.listar")?.requestHeaders?.({ notificacaoAceita: false })).toBeUndefined();
     expect(find("tempo.listar")?.appUri).toBe("ui://centralmacatuba/tempo");
     expect(find("mapa.listar")?.appUri).toBe("ui://centralmacatuba/mapa");
     expect(find("jornal.listar")?.appUri).toBe("ui://centralmacatuba/jornal");
