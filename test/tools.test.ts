@@ -235,7 +235,7 @@ describe("API tool handler integration", () => {
     const calls: Array<{ endpoint: PublicEndpoint; query?: Record<string, unknown>; options?: { headers?: HeadersInit } }> = [];
     const api = {
       async request(endpoint: PublicEndpoint, query?: Record<string, unknown>, options?: { headers?: HeadersInit }) {
-        calls.push({ endpoint, query, options });
+        calls.push({ endpoint, ...(query !== undefined ? { query } : {}), ...(options !== undefined ? { options } : {}) });
         return { success: true };
       }
     } as unknown as CentralMacatubaSDK;
@@ -253,8 +253,7 @@ describe("API tool handler integration", () => {
     await handler!({ page: 1, limit: 2, notificacaoAceita: false });
     expect(calls[1]).toEqual({
       endpoint: "/api/sos/listar_alertas",
-      query: { page: 1, limit: 2 },
-      options: undefined
+      query: { page: 1, limit: 2 }
     });
   });
 });
