@@ -65,7 +65,10 @@ describe("public MCP tools", () => {
     expect(schema("calendario.gerar").safeParse({ formato: "jpg" }).success).toBe(false);
     expect(schema("calendario.gerar").safeParse({ ano: 0 }).success).toBe(false);
 
-    expect(schema("servicos.pesquisar").safeParse({ termo: "Macatuba".repeat(30) }).success).toBe(false);
+    expect(schema("servicos.pesquisar").safeParse({ q: "Macatuba".repeat(30) }).success).toBe(false);
+    expect(schema("servicos.pesquisar").safeParse({ q: "Macatuba", campo: "nome", page: 2, limit: 100 }).success).toBe(true);
+    expect(schema("servicos.pesquisar").safeParse({ q: "Macatuba", limit: 101 }).success).toBe(false);
+    expect(schema("sos.listar").safeParse({ page: 2, limit: 50, notificacaoAceita: true }).success).toBe(true);
   });
 
   it("preserves optional map listing filters and requires at least one filter when filtering", () => {
@@ -104,7 +107,7 @@ describe("public MCP tools", () => {
     expect(find("informacoes.obter")?.fixedQuery).toEqual({ funcao: "uma" });
     expect(find("jornal.listar")?.fixedQuery).toEqual({ funcao: "todas" });
     expect(find("jornal.obter")?.fixedQuery).toEqual({ funcao: "uma" });
-    expect(find("servicos.pesquisar")?.fixedQuery).toEqual({ funcao: "pesquisar" });
+    expect(find("servicos.pesquisar")?.endpoint).toBe("/api/servicos/pesquisar");
     expect(find("sos.listar")?.endpoint).toBe("/api/sos/listar_alertas");
     expect(find("tempo.listar")?.appUri).toBe("ui://centralmacatuba/tempo");
     expect(find("mapa.listar")?.appUri).toBe("ui://centralmacatuba/mapa");

@@ -1,6 +1,6 @@
 # Compatibilidade das ferramentas MCP
 
-Este documento descreve as ferramentas disponibilizadas pelo servidor e como elas utilizam as operações públicas do SDK `@centralmacatuba/api`.
+Este documento descreve as ferramentas disponibilizadas pelo servidor e como elas utilizam as operações públicas do SDK `@centralmacatuba/api`. A implementação está alinhada ao contrato público OpenAPI **1.1.2**.
 
 A regra de implementação é simples: cada ferramenta só pode chamar operações presentes no SDK público. O servidor MCP não implementa clientes HTTP paralelos, não aceita URLs arbitrárias e não inclui operações administrativas.
 
@@ -31,7 +31,7 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `redicionador.verificar` | `redicionador.verificar()` | Exige slug no parâmetro `url` |
 | `servicos.listar` | `servicos.verificar({ funcao: "tudo" })` | Parâmetro de função fixado pelo servidor |
 | `servicos.obter` | `servicos.verificar({ funcao: "uma", ... })` | Exige id ou nome |
-| `servicos.pesquisar` | `servicos.verificar({ funcao: "pesquisar", termo })` | Termo obrigatório, até 200 caracteres |
+| `servicos.pesquisar` | `GET /api/servicos/pesquisar` | Pesquisa geral do catálogo por `q` e `campo`, com paginação; não usa mais `funcao=pesquisar` em `/api/servicos/verificar`. |
 | `servicos_cursos.pesquisar` | `servicos.cursos.pesquisar()` | Filtros opcionais |
 | `servicos_cursos.verificar` | `servicos.cursos.verificar()` | Categoria ou slug opcionais |
 | `servicos_docs.pesquisar` | `servicos.docs.pesquisar()` | Filtros opcionais |
@@ -41,7 +41,7 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `servicos_streaming.pesquisar` | `servicos.streaming.pesquisar()` | Exige tipo válido |
 | `servicos_streaming.verificar` | `servicos.streaming.verificar()` | Exige tipo válido e id quando `funcao=uma`. |
 | `servicos_streaming.live_verificar` | `servicos.streaming.live.verificar()` | Consulta transmissões ao vivo e agendadas |
-| `sos.listar` | `sos.listarAlertas()` | Consulta alertas públicos; não encaminha cookies de navegador |
+| `sos.listar` | `GET /api/sos/listar_alertas` | Consulta alertas; quando `notificacaoAceita=true`, envia `X-CM-SOS-PERMISSION: granted` como cabeçalho HTTP; nunca usa cookie. |
 | `tempo.listar` | `tempo.verificar()` | MCP App Tempo |
 
 ## MCP Apps associados
@@ -53,10 +53,14 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `ui://centralmacatuba/mapa` | `mapa.listar` |
 | `ui://centralmacatuba/jornal` | `jornal.listar` |
 | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
-| `ui://centralmacatuba/cursos` | `servicos_cursos.verificar` |
+| `ui://centralmacatuba/servicos/cursos` | `servicos_cursos.verificar` |
 | `ui://centralmacatuba/sos` | `sos.listar` |
 
 As sete interfaces são empacotadas como HTML autocontido durante o build. Seus scripts usam o pacote oficial de MCP Apps incluído nas dependências do servidor, sem carregar bibliotecas de terceiros por CDN em tempo de execução.
+
+## Paginação
+
+As ferramentas de listagem e pesquisa que possuem suporte no OpenAPI aceitam `page` (base 1) e `limit` (de 1 a 100). O padrão da API é página 1 e 20 itens por página. Isso inclui calendário, informações, jornal, links, mapa, novidades, páginas, catálogo de serviços, cursos, documentação, jogos, streaming, SOS e tempo. Ferramentas de consulta individual não expõem paginação quando ela não tem efeito semântico.
 
 ## Compatibilidade de argumentos
 
@@ -70,7 +74,7 @@ A ferramenta `links.verificar` não disponibiliza `funcao=pendentes`: a document
 
 As funções `uma` de `novidades.verificar` e `servicos_streaming.verificar` também exigem id explícito.
 
-A ferramenta `sos.listar` usa a operação pública de alertas do SDK. Não envia permissões de notificação do navegador e não tenta reproduzir preferências locais do usuário.
+A ferramenta `sos.listar` usa a operação pública de alertas. O argumento opcional `notificacaoAceita` só deve ser `true` quando o usuário já tiver concedido a permissão; nesse caso, o MCP envia `X-CM-SOS-PERMISSION: granted` por meio das opções de requisição do SDK. O MCP não solicita permissão, não lê nem encaminha cookies do navegador e não presume consentimento quando o argumento é omitido ou `false`.
 
 ## Funcionalidades não incluídas
 

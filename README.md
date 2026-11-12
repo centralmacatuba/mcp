@@ -74,7 +74,7 @@ A documentação completa está em [docs.mcp.centralmacatuba.qzz.io](https://doc
 
 As ferramentas iniciais são somente leitura e mapeiam para endpoints presentes na allowlist do SDK público. Consulte a [matriz de compatibilidade](docs/compatibilidade.md) para ver o que foi preservado, redesenhado ou excluído da implementação PHP anterior.
 
-Os argumentos das ferramentas são recebidos no nível superior, preservando os contratos legados quando há equivalência. Cada ferramenta valida campos, tipos, enums e obrigatoriedades definidos no OpenAPI. Campos de texto são limitados a 2.048 caracteres e respostas MCP a 100.000 caracteres. O servidor não aceita caminhos arbitrários nem nomes de endpoint fornecidos pelo cliente.
+Os argumentos das ferramentas são recebidos no nível superior, preservando os contratos legados quando há equivalência. Os schemas acompanham o contrato público OpenAPI 1.1.2, incluindo paginação `page`/`limit`, o endpoint específico de pesquisa do catálogo de serviços e o cabeçalho HTTP de autorização SOS. Campos de texto são limitados a 2.048 caracteres e respostas MCP a 100.000 caracteres. O servidor não aceita caminhos arbitrários nem nomes de endpoint fornecidos pelo cliente.
 
 Consulte [configuração de clientes](docs/clientes.md) para exemplos de conexão via STDIO e Streamable HTTP.
 

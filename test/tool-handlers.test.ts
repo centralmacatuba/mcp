@@ -40,6 +40,23 @@ describe("registered API tool handlers", () => {
     });
   });
 
+  it("forwards the new paginated services search contract", async () => {
+    request.mockResolvedValue({ items: [] });
+    await call("servicos.pesquisar", { q: "cultura", campo: "nome", page: 2, limit: 50 });
+    expect(request).toHaveBeenCalledWith("/api/servicos/pesquisar", { q: "cultura", campo: "nome", page: 2, limit: 50 });
+  });
+
+  it("maps explicit SOS notification consent to the OpenAPI header, never a cookie or query parameter", async () => {
+    request.mockResolvedValue({ items: [] });
+    await call("sos.listar", { page: 2, limit: 30, notificacaoAceita: true });
+    expect(request).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 2, limit: 30 }, {
+      headers: { "X-CM-SOS-PERMISSION": "granted" }
+    });
+    request.mockClear();
+    await call("sos.listar", { page: 1, notificacaoAceita: false });
+    expect(request).toHaveBeenCalledWith("/api/sos/listar_alertas", { page: 1 });
+  });
+
   it.each([
     ["jornal.pesquisar", {}],
     ["servicos.obter", { nome: "  " }],

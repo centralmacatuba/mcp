@@ -12,48 +12,64 @@ type ToolQuery = Record<string, string | number | boolean | Array<string | numbe
 
 const queryInput = (schema: z.ZodType<any>) => schema as z.ZodObject<any>;
 const noInput = z.object({});
+const pagination = {
+  page: z.number().int().min(1).optional(),
+  limit: z.number().int().min(1).max(100).optional()
+};
 
 const infoByIdOrName = queryInput(z.object({
   id: positiveId.optional(),
   nome: text.optional()
 }).refine((value) => value.id !== undefined || Boolean(value.nome?.trim()), "Informe id ou nome."));
 const searchInfo = queryInput(z.object({
-  p: text.min(1),
-  filtro: z.enum(["nome", "tipo", "bairro", "zona"]).optional()
+  p: text.optional(),
+  filtro: z.enum(["nome", "tipo", "bairro", "zona"]).optional(),
+  ...pagination
 }));
 const mapList = queryInput(z.object({
   tipo: text.optional(),
   criador: text.optional(),
-  verificado: text.optional()
+  verificado: text.optional(),
+  ...pagination
 }));
 const searchJournal = queryInput(z.object({
   q: text.min(1),
-  filtro: z.enum(["criador", "titulo", "subtitulo", "conteudo", "tudo"]).optional()
+  filtro: z.enum(["criador", "titulo", "subtitulo", "conteudo", "tudo"]).optional(),
+  ...pagination
 }));
 const journalById = queryInput(z.object({ id: positiveId }));
 const searchMap = queryInput(z.object({
-  q: text.min(1),
-  filtro: z.enum(["nome", "tipo", "criador", "descricao", "tudo"]).optional()
+  q: text.optional(),
+  filtro: z.enum(["nome", "tipo", "criador", "descricao", "tudo"]).optional(),
+  min_lat: z.number().min(-90).max(90).optional(),
+  min_lng: z.number().min(-180).max(180).optional(),
+  max_lat: z.number().min(-90).max(90).optional(),
+  max_lng: z.number().min(-180).max(180).optional(),
+  zoom: z.number().int().min(0).max(22).optional(),
+  ...pagination
 }));
 const filterMap = queryInput(z.object({
   tipo: text.optional(),
   criador: text.optional(),
-  verificado: text.optional()
-}).refine((value) => Object.values(value).some((item) => item !== undefined && item.trim().length > 0), "Informe ao menos um filtro."));
-const searchLinks = queryInput(z.object({ termo: text.optional() }));
+  verificado: text.optional(),
+  ...pagination
+}).refine((value) => Object.entries(value).some(([key, item]) => key !== "page" && key !== "limit" && typeof item === "string" && item.trim().length > 0), "Informe ao menos um filtro."));
+const searchLinks = queryInput(z.object({ termo: text.optional(), ...pagination }));
 const verifyLinks = queryInput(z.object({
   funcao: z.enum(["tudo", "uma"]).optional(),
   id: positiveId.optional()
 }).refine((value) => value.funcao !== "uma" || value.id !== undefined, "Informe id quando funcao=uma."));
 const verifyItems = queryInput(z.object({
   funcao: z.enum(["tudo", "uma"]).optional(),
-  id: positiveId.optional()
+  id: positiveId.optional(),
+  ...pagination
 }).refine((value) => value.funcao !== "uma" || value.id !== undefined, "Informe id quando funcao=uma."));
 const searchCourses = queryInput(z.object({
   q: text.optional(),
   categoria: text.optional(),
   nivel: text.optional(),
-  campo: z.enum(["titulo", "descricao", "conteudo", "todos"]).optional()
+  campo: z.enum(["titulo", "descricao", "conteudo", "todos"]).optional(),
+  ...pagination
 }));
 const verifyCourses = queryInput(z.object({
   categoria: text.optional(),
@@ -62,12 +78,14 @@ const verifyCourses = queryInput(z.object({
 const searchDocs = queryInput(z.object({
   categoria: text.optional(),
   q: text.optional(),
-  campo: z.enum(["nome", "descricao", "conteudo", "data_criacao", "data_atualizacao", "todos"]).optional()
+  campo: z.enum(["nome", "descricao", "conteudo", "data_criacao", "data_atualizacao", "todos"]).optional(),
+  ...pagination
 }));
 const verifyDocs = queryInput(z.object({ slug: text.min(1) }));
 const searchGames = queryInput(z.object({
   q: text.optional(),
-  campo: z.enum(["tudo", "titulo", "slug", "descricao_curta", "descricao_longa"]).optional()
+  campo: z.enum(["tudo", "titulo", "slug", "descricao_curta", "descricao_longa"]).optional(),
+  ...pagination
 }));
 const verifyGames = queryInput(z.object({
   id: positiveId.optional(),
@@ -78,12 +96,14 @@ const streamingTypes = ["radio", "tv", "vod", "camera", "podcast"] as const;
 const searchStreaming = queryInput(z.object({
   tipo: z.enum(streamingTypes),
   p: text.optional(),
-  filtro: z.enum(["nome", "descricao_curta", "descricao_longa", "tipo", "categoria", "qualidade", "classificacao", "tipo_stream", "tudo"]).optional()
+  filtro: z.enum(["nome", "descricao_curta", "descricao_longa", "tipo", "categoria", "qualidade", "classificacao", "tipo_stream", "tudo"]).optional(),
+  ...pagination
 }));
 const verifyStreaming = queryInput(z.object({
   tipo: z.enum(streamingTypes),
   funcao: z.enum(["tudo", "uma"]).optional(),
-  id: positiveId.optional()
+  id: positiveId.optional(),
+  ...pagination
 }).refine((value) => value.funcao !== "uma" || value.id !== undefined, "Informe id quando funcao=uma."));
 const serviceByIdOrName = queryInput(z.object({
   id: positiveId.optional(),
@@ -98,18 +118,19 @@ interface ToolDefinition {
   inputSchema: z.ZodObject<any>;
   fixedQuery?: ToolQuery;
   appUri?: AppResourceUri;
+  requestHeaders?: (args: ToolQuery) => HeadersInit | undefined;
 }
 
 const tools: ToolDefinition[] = [
   { name: "ping", title: "Verificar disponibilidade", description: "Verifica a disponibilidade do gateway público da Central Macatuba.", endpoint: "/", inputSchema: noInput },
   { name: "avisos.verificar", appUri: "ui://centralmacatuba/novidades", title: "Consultar avisos", description: "Consulta avisos ativos publicados pela Central Macatuba.", endpoint: "/api/avisos/verificar", inputSchema: noInput },
-  { name: "calendario.verificar", appUri: "ui://centralmacatuba/calendario", title: "Consultar calendário", description: "Consulta o calendário público. data, quando informada, deve usar AAAA-MM-DD.", endpoint: "/api/calendario/verificar", inputSchema: queryInput(z.object({ data: text.regex(/^\d{4}-\d{2}-\d{2}$/).optional() })) },
+  { name: "calendario.verificar", appUri: "ui://centralmacatuba/calendario", title: "Consultar calendário", description: "Consulta o calendário público. data, quando informada, deve usar AAAA-MM-DD.", endpoint: "/api/calendario/verificar", inputSchema: queryInput(z.object({ data: text.regex(/^\d{4}-\d{2}-\d{2}$/).optional(), ...pagination })) },
   { name: "calendario.gerar", appUri: "ui://centralmacatuba/calendario", title: "Gerar calendário", description: "Gera o calendário no formato JSON, PDF ou PNG. O formato padrão é JSON; informe o ano quando desejar um calendário específico.", endpoint: "/api/calendario/gerar", inputSchema: queryInput(z.object({ ano: z.number().int().min(1).max(9999).optional(), formato: z.enum(["json", "pdf", "png"]).optional() })) },
   { name: "dominios.verificar", title: "Verificar domínios", description: "Consulta informações públicas de domínios disponibilizadas pela API.", endpoint: "/api/dominios/verificar", inputSchema: noInput },
-  { name: "informacoes.listar", appUri: "ui://centralmacatuba/informacoes", title: "Listar informações", description: "Lista as informações públicas cadastradas.", endpoint: "/api/informacoes/verificar", inputSchema: noInput, fixedQuery: { funcao: "tudo" } },
+  { name: "informacoes.listar", appUri: "ui://centralmacatuba/informacoes", title: "Listar informações", description: "Lista as informações públicas cadastradas.", endpoint: "/api/informacoes/verificar", inputSchema: queryInput(z.object({ ...pagination })), fixedQuery: { funcao: "tudo" } },
   { name: "informacoes.obter", title: "Obter informação", description: "Obtém uma informação pública por id ou nome; informe pelo menos um deles.", endpoint: "/api/informacoes/verificar", inputSchema: infoByIdOrName, fixedQuery: { funcao: "uma" } },
   { name: "informacoes.pesquisar", title: "Pesquisar informações", description: "Pesquisa informações públicas por p e filtro (nome, tipo, bairro ou zona).", endpoint: "/api/informacoes/pesquisar", inputSchema: searchInfo },
-  { name: "jornal.listar", appUri: "ui://centralmacatuba/jornal", title: "Listar notícias", description: "Lista as notícias públicas do Jornal Macatuba.", endpoint: "/api/jornal/verificar", inputSchema: noInput, fixedQuery: { funcao: "todas" } },
+  { name: "jornal.listar", appUri: "ui://centralmacatuba/jornal", title: "Listar notícias", description: "Lista as notícias públicas do Jornal Macatuba.", endpoint: "/api/jornal/verificar", inputSchema: queryInput(z.object({ ...pagination })), fixedQuery: { funcao: "todas" } },
   { name: "jornal.obter", title: "Obter notícia", description: "Obtém uma notícia pública pelo ID.", endpoint: "/api/jornal/verificar", inputSchema: journalById, fixedQuery: { funcao: "uma" } },
   { name: "jornal.pesquisar", title: "Pesquisar no Jornal", description: "Pesquisa publicações no Jornal Macatuba. q é obrigatório; filtro restringe o campo pesquisado.", endpoint: "/api/jornal/pesquisar", inputSchema: searchJournal },
   { name: "links.pesquisar", title: "Pesquisar links", description: "Pesquisa links públicos catalogados pela Central Macatuba pelo termo informado.", endpoint: "/api/links/pesquisar", inputSchema: searchLinks },
@@ -117,14 +138,14 @@ const tools: ToolDefinition[] = [
   { name: "mapa.listar", appUri: "ui://centralmacatuba/mapa", title: "Listar pontos do mapa", description: "Lista pontos e locais do Mapa Macatuba; aceita filtros opcionais por tipo, criador e verificação.", endpoint: "/api/mapa/verificar", inputSchema: mapList },
   { name: "mapa.filtrar", title: "Filtrar pontos do mapa", description: "Filtra pontos do mapa por tipo, criador ou estado de verificação. Informe ao menos um filtro.", endpoint: "/api/mapa/verificar", inputSchema: filterMap },
   { name: "mapa.pesquisar", title: "Pesquisar no mapa", description: "Pesquisa locais no Mapa Macatuba. q é obrigatório; filtro restringe o campo.", endpoint: "/api/mapa/pesquisar", inputSchema: searchMap },
-  { name: "novidades.pesquisar", appUri: "ui://centralmacatuba/novidades", title: "Pesquisar novidades", description: "Pesquisa novidades publicadas na Central Macatuba.", endpoint: "/api/novidades/pesquisar", inputSchema: queryInput(z.object({ q: text.max(200).optional() })) },
+  { name: "novidades.pesquisar", appUri: "ui://centralmacatuba/novidades", title: "Pesquisar novidades", description: "Pesquisa novidades publicadas na Central Macatuba.", endpoint: "/api/novidades/pesquisar", inputSchema: queryInput(z.object({ q: text.max(200).optional(), ...pagination })) },
   { name: "novidades.verificar", appUri: "ui://centralmacatuba/novidades", title: "Verificar novidades", description: "Consulta novidades por função e, opcionalmente, id.", endpoint: "/api/novidades/verificar", inputSchema: verifyItems },
-  { name: "paginas.pesquisar", title: "Pesquisar páginas", description: "Pesquisa páginas públicas catalogadas pela Central Macatuba.", endpoint: "/api/paginas/pesquisar", inputSchema: queryInput(z.object({ q: text.optional() })) },
+  { name: "paginas.pesquisar", title: "Pesquisar páginas", description: "Pesquisa páginas públicas catalogadas pela Central Macatuba.", endpoint: "/api/paginas/pesquisar", inputSchema: queryInput(z.object({ q: text.optional(), ...pagination })) },
   { name: "paginas.verificar", title: "Consultar página por ID", description: "Consulta uma página pública pelo ID explícito. O servidor MCP não herda o Host/path do cliente.", endpoint: "/api/paginas/verificar", inputSchema: queryInput(z.object({ id: positiveId })) },
   { name: "redicionador.verificar", title: "Verificar redirecionador", description: "Verifica se o slug derivado do parâmetro url existe e se o domínio do cliente está autorizado.", endpoint: "/api/redicionador/verificar", inputSchema: queryInput(z.object({ url: text.min(1) })) },
   { name: "servicos.listar", appUri: "ui://centralmacatuba/servicos", title: "Listar serviços", description: "Lista os serviços públicos do catálogo Serviços Macatuba.", endpoint: "/api/servicos/verificar", inputSchema: noInput, fixedQuery: { funcao: "tudo" } },
   { name: "servicos.obter", title: "Obter serviço", description: "Obtém um serviço por id ou nome; informe pelo menos um deles.", endpoint: "/api/servicos/verificar", inputSchema: serviceByIdOrName, fixedQuery: { funcao: "uma" } },
-  { name: "servicos.pesquisar", title: "Pesquisar serviços", description: "Pesquisa serviços públicos pelo termo informado (até 200 caracteres).", endpoint: "/api/servicos/verificar", inputSchema: queryInput(z.object({ termo: text.min(1).max(200) })), fixedQuery: { funcao: "pesquisar" } },
+  { name: "servicos.pesquisar", title: "Pesquisar serviços", description: "Pesquisa o catálogo público de serviços por q e campo; aceita paginação por page e limit.", endpoint: "/api/servicos/pesquisar", inputSchema: queryInput(z.object({ q: text.max(200).optional(), campo: z.enum(["tudo", "nome", "titulo", "descricao_curta", "descricao_longa"]).optional(), ...pagination })) },
   { name: "servicos_cursos.pesquisar", title: "Pesquisar cursos", description: "Pesquisa cursos por termo, categoria, nível e campo.", endpoint: "/api/servicos/cursos/pesquisar", inputSchema: searchCourses },
   { name: "servicos_cursos.verificar", appUri: "ui://centralmacatuba/servicos/cursos", title: "Verificar cursos", description: "Consulta cursos por categoria ou slug.", endpoint: "/api/servicos/cursos/verificar", inputSchema: verifyCourses },
   { name: "servicos_docs.pesquisar", appUri: "ui://centralmacatuba/servicos/docs", title: "Pesquisar documentação", description: "Pesquisa documentação por categoria, termo e campo.", endpoint: "/api/servicos/docs/pesquisar", inputSchema: searchDocs },
@@ -134,8 +155,8 @@ const tools: ToolDefinition[] = [
   { name: "servicos_streaming.pesquisar", appUri: "ui://centralmacatuba/servicos/streaming", title: "Pesquisar streaming", description: "Pesquisa streaming. tipo é obrigatório e aceita radio, tv, vod, camera ou podcast.", endpoint: "/api/servicos/streaming/pesquisar", inputSchema: searchStreaming },
   { name: "servicos_streaming.verificar", appUri: "ui://centralmacatuba/servicos/streaming", title: "Verificar streaming", description: "Consulta streaming. tipo é obrigatório e aceita radio, tv, vod, camera ou podcast.", endpoint: "/api/servicos/streaming/verificar", inputSchema: verifyStreaming },
   { name: "servicos_streaming.live_verificar", appUri: "ui://centralmacatuba/servicos/streaming", title: "Verificar streaming ao vivo", description: "Consulta o estado público do serviço de streaming ao vivo.", endpoint: "/api/servicos/streaming/live/verificar", inputSchema: queryInput(z.object({ funcao: text.optional() })) },
-  { name: "sos.listar", appUri: "ui://centralmacatuba/sos", title: "Consultar alertas SOS", description: "Lista os alertas públicos do SOS Macatuba. A consulta não solicita nem armazena permissões de notificação do navegador.", endpoint: "/api/sos/listar_alertas", inputSchema: noInput },
-  { name: "tempo.listar", appUri: "ui://centralmacatuba/tempo", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas. source, start e end são parâmetros opcionais aceitos pelo serviço.", endpoint: "/api/tempo/verificar", inputSchema: queryInput(z.object({ source: text.optional(), start: text.optional(), end: text.optional() })) }
+  { name: "sos.listar", appUri: "ui://centralmacatuba/sos", title: "Consultar alertas SOS", description: "Lista alertas públicos. Defina notificacaoAceita=true somente quando o usuário já tiver concedido a permissão; isso envia X-CM-SOS-PERMISSION: granted. O MCP não solicita permissão nem usa cookies.", endpoint: "/api/sos/listar_alertas", inputSchema: queryInput(z.object({ ...pagination, notificacaoAceita: z.boolean().optional() })), requestHeaders: (args) => args.notificacaoAceita === true ? { "X-CM-SOS-PERMISSION": "granted" } : undefined },
+  { name: "tempo.listar", appUri: "ui://centralmacatuba/tempo", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas. source, start e end são parâmetros opcionais aceitos pelo serviço.", endpoint: "/api/tempo/verificar", inputSchema: queryInput(z.object({ source: text.optional(), start: text.optional(), end: text.optional(), ...pagination })) }
 ];
 
 
@@ -205,10 +226,15 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
         // e o SDK ainda valida a allowlist pública antes de enviar a requisição.
         const request = api.request.bind(api) as unknown as (
           endpoint: PublicEndpoint,
-          query?: ToolQuery
+          query?: ToolQuery,
+          options?: { headers?: HeadersInit }
         ) => Promise<unknown>;
         const query = { ...args, ...(definition.fixedQuery ?? {}) };
-        const result = await request(definition.endpoint, query);
+        const requestHeaders = definition.requestHeaders?.(args);
+        if (definition.requestHeaders) delete query.notificacaoAceita;
+        const result = requestHeaders
+          ? await request(definition.endpoint, query, { headers: requestHeaders })
+          : await request(definition.endpoint, query);
         if (result instanceof Blob) {
           if (definition.name !== "calendario.gerar") {
             return {
