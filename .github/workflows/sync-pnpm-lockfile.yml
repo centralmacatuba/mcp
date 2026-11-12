@@ -1,0 +1,63 @@
+name: Sync pnpm lockfile
+
+on:
+  # Manual execution only: run this after the public API SDK version declared
+  # in package.json is available from the npm registry.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lockfile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    # Only branch refs are valid targets; never push directly to principal or tags.
+    if: startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/principal'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 12.12.1
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Verify published API SDK dependency
+        run: |
+          if ! npm view @centralmacatuba/api@0.1.0 version; then
+            echo "::error::@centralmacatuba/api@0.1.0 is not available from the npm registry. Publish the compatible API SDK version before synchronizing this lockfile."
+            exit 1
+          fi
+
+      - name: Regenerate lockfile
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
+
+      - name: Validate frozen lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Commit and push lockfile when changed
+        run: |
+          if [ -z "$(git status --porcelain -- pnpm-lock.yaml)" ]; then
+            echo "Lockfile is already synchronized and passes frozen validation."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- pnpm-lock.yaml
+          git commit -m "chore: sync pnpm lockfile"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  push:
+    branches: [principal]
+  pull_request:
+    branches: [principal]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate (Node.js 22)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Checkout API SDK source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: centralmacatuba/api-sdk
+          ref: b5f0debfb96c2d8f9b2376001254b43634cafc83
+          path: api-sdk
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 12.12.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Build local API SDK dependency
+        working-directory: api-sdk
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: Validate published dependency lockfile when available
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile --ignore-scripts
+          else
+            echo "::notice::pnpm-lock.yaml will be generated after @centralmacatuba/api@0.1.0 is published."
+          fi
+
+      - name: Link the in-development API SDK for CI
+        run: |
+          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.dependencies['@centralmacatuba/api']='file:./api-sdk';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Documentation tests
+        run: pnpm docs:test
+
+      - name: Documentation build
+        run: pnpm docs:build
+
+      - name: Build
+        run: pnpm build
+
+      - name: Package consumer smoke test
+        run: pnpm test:package
+
+      - name: Verify MCP App bundles
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+
+          const apps = [
+          "tempo", "servicos", "mapa", "jornal", "informacoes", "sos", "calendario", "novidades",
+          "servicos/cursos", "servicos/docs", "servicos/jogos", "servicos/streaming"
+          ];
+          const failures = [];
+
+          for (const app of apps) {
+            const path = `dist/apps/${app}.html`;
+            if (!fs.existsSync(path)) {
+              failures.push(`${path}: arquivo ausente`);
+              continue;
+            }
+
+            const html = fs.readFileSync(path, "utf8");
+            const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+            const styles = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)];
+
+            if (!/^<!doctype html>/i.test(html.trimStart())) failures.push(`${path}: doctype ausente`);
+            if (!html.includes("data-mcp-app")) failures.push(`${path}: marcador MCP App ausente`);
+            if (!html.includes("data-tool=")) failures.push(`${path}: ferramenta vinculada ausente`);
+            if (!scripts.length || scripts.every(([, attrs, body]) => /\bsrc\s*=/i.test(attrs) || !body.trim())) {
+              failures.push(`${path}: JavaScript não foi incorporado ao HTML`);
+            }
+            if (!styles.length || styles.every(([, body]) => !body.trim())) {
+              failures.push(`${path}: CSS não foi incorporado ao HTML`);
+            }
+            if (/<(?:script|link)\b[^>]*(?:src|href)=["']\/(?:src|assets)\//i.test(html)) {
+              failures.push(`${path}: dependência local externa permaneceu no HTML`);
+            }
+          }
+
+          if (failures.length) {
+            console.error(failures.join("\n"));
+            process.exit(1);
+          }
+          console.log(`Os ${apps.length} MCP Apps possuem HTML, JavaScript e CSS incorporados.`);
+          NODE
+
+      - name: Restore published dependency metadata
+        run: |
+          node -e "const fs=require('node:fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.dependencies['@centralmacatuba/api']='^0.1.0';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
+
+      - name: Validate npm package contents
+        run: |
+          npm pack --dry-run --ignore-scripts --json > npm-pack.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const [pack] = JSON.parse(fs.readFileSync("npm-pack.json", "utf8"));
+          const files = new Set(pack.files.map(({ path }) => path));
+          const required = [
+            "dist/index.js", "dist/index.d.ts",
+            "dist/http.js", "dist/http.d.ts",
+            "dist/stdio.js", "dist/stdio.d.ts",
+            "dist/cli.js",
+            ...["tempo", "servicos", "mapa", "jornal", "informacoes", "sos", "calendario", "novidades"].map((name) => "dist/apps/" + name + ".html"),
+            ...["cursos", "docs", "jogos", "streaming"].map((name) => "dist/apps/servicos/" + name + ".html"),
+            "README.md", "LICENSE"
+          ];
+          const missing = required.filter((path) => !files.has(path));
+          if (missing.length) {
+            console.error("Arquivos ausentes no pacote npm: " + missing.join(", "));
+            process.exit(1);
+          }
+          console.log("Pacote validado: " + files.size + " arquivos.");
+          NODE

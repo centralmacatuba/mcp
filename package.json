@@ -1,0 +1,96 @@
+{
+  "name": "@centralmacatuba/mcp",
+  "version": "0.1.0",
+  "description": "Servidor MCP oficial da Central Macatuba, integrado ao SDK da API pública.",
+  "license": "MIT",
+  "author": "Desenvolvedor EE (Dev EE)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/centralmacatuba/mcp.git"
+  },
+  "homepage": "https://docs.mcp.centralmacatuba.qzz.io/",
+  "bugs": {
+    "url": "https://github.com/centralmacatuba/mcp/issues"
+  },
+  "keywords": [
+    "centralmacatuba",
+    "mcp",
+    "model-context-protocol",
+    "typescript",
+    "api"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "import": "./dist/http.js"
+    },
+    "./stdio": {
+      "types": "./dist/stdio.d.ts",
+      "import": "./dist/stdio.js"
+    }
+  },
+  "bin": {
+    "centralmacatuba-mcp": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "docs",
+    ".env.example"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@12.12.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsup && pnpm build:apps",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm build:apps && vitest run",
+    "test:watch": "vitest",
+    "start": "node dist/cli.js --transport stdio",
+    "start:http": "node dist/cli.js --transport http",
+    "dev": "pnpm build:apps && tsx src/cli.ts --transport stdio",
+    "build:apps": "tsx scripts/build-apps.ts",
+    "prepack": "pnpm docs:generate && pnpm build",
+    "release": "changeset publish",
+    "docs:generate": "tsx scripts/generate-docs-reference.ts",
+    "docs:dev": "pnpm docs:generate && vitepress dev docs",
+    "docs:build": "pnpm docs:generate && vitepress build docs",
+    "docs:preview": "pnpm docs:generate && vitepress preview docs",
+    "docs:test": "pnpm docs:generate && vitest run test/docs.test.ts",
+    "test:package": "node test/package-consumer.mjs && node test/mcp-client.mjs"
+  },
+  "dependencies": {
+    "@centralmacatuba/api": "0.1.0",
+    "zod": "^4.2.0",
+    "@modelcontextprotocol/server": "^2.4.0",
+    "@modelcontextprotocol/node": "^2.1.2",
+    "@modelcontextprotocol/ext-apps": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.12",
+    "vite": "^6.4.1",
+    "vite-plugin-singlefile": "^2.3.0",
+    "@changesets/cli": "^2.31.1",
+    "vitepress": "1.6.4",
+    "@modelcontextprotocol/client": "^2.4.0"
+  }
+}

@@ -1,0 +1,58 @@
+import { defineConfig } from "vitepress";
+
+export default defineConfig({
+  lang: "pt-BR",
+  title: "@centralmacatuba/mcp",
+  description: "Documentação oficial do pacote MCP da Central Macatuba.",
+  // The documentation uses a custom domain, so it is served from the domain root.
+  base: "/",
+  lastUpdated: true,
+  cleanUrls: true,
+  head: [["link", { rel: "stylesheet", href: "/custom.css" }]],
+  themeConfig: {
+    siteTitle: "@centralmacatuba/mcp",
+    nav: [
+      { text: "Início", link: "/" },
+      { text: "Guia", link: "/guide/installation" },
+      { text: "Referência", link: "/reference/tools" },
+      { text: "Clientes", link: "/clientes" },
+      { text: "Compatibilidade", link: "/compatibilidade" },
+      { text: "GitHub", link: "https://github.com/centralmacatuba/mcp" }
+    ],
+    sidebar: {
+      "/": [{
+        text: "Documentos adicionais",
+        items: [
+          { text: "Clientes (configuração)", link: "/clientes" },
+          { text: "Compatibilidade (matriz)", link: "/compatibilidade" }
+        ]
+      }],
+      "/guide/": [{
+        text: "Guia",
+        items: [
+          { text: "Instalação", link: "/guide/installation" },
+          { text: "Primeiros passos", link: "/guide/getting-started" },
+          { text: "Configuração", link: "/guide/configuration" },
+          { text: "Transportes", link: "/guide/transports" },
+          { text: "Clientes", link: "/guide/clients" },
+          { text: "Desenvolvimento", link: "/guide/development" }
+        ]
+      }],
+      "/reference/": [{
+        text: "Referência",
+        items: [
+          { text: "Ferramentas", link: "/reference/tools" },
+          { text: "MCP Apps", link: "/reference/apps" },
+          { text: "Arquitetura e segurança", link: "/reference/architecture" },
+          { text: "Compatibilidade", link: "/reference/compatibility" }
+        ]
+      }]
+    },
+    search: { provider: "local" },
+    socialLinks: [{ icon: "github", link: "https://github.com/centralmacatuba/mcp" }],
+    footer: {
+      message: "Pacote MCP de um projeto independente, sem vínculo institucional com a Prefeitura Municipal de Macatuba.",
+      copyright: "Desenvolvido por Desenvolvedor EE (Dev EE)."
+    }
+  }
+});
