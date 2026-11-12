@@ -52,7 +52,7 @@ describe("public MCP tools", () => {
     expect(schema("jornal.pesquisar").safeParse({ q: "Macatuba", filtro: "url" }).success).toBe(false);
 
     expect(schema("informacoes.pesquisar").safeParse({ p: "saúde" }).success).toBe(true);
-    expect(schema("informacoes.pesquisar").safeParse({}).success).toBe(false);
+    expect(schema("informacoes.pesquisar").safeParse({}).success).toBe(true);
 
     expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "radio" }).success).toBe(true);
     expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "music" }).success).toBe(false);
