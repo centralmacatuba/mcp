@@ -312,7 +312,7 @@ export function registerApiTools(server: McpServer, api: CentralMacatubaSDK): vo
         const structuredContent = pagination
           ? { ...baseStructuredContent, pagination }
           : baseStructuredContent;
-        const serialized = jsonText(structuredContent);
+        const serialized = pagination ? jsonText(structuredContent) : jsonText(result);
         if (serialized.length > MAX_TOOL_OUTPUT_CHARS) {
           return {
             isError: true,
