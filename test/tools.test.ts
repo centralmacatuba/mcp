@@ -69,6 +69,7 @@ describe("public MCP tools", () => {
     expect(schema("servicos.pesquisar").safeParse({ q: "Macatuba", campo: "nome", page: 2, limit: 100 }).success).toBe(true);
     expect(schema("servicos.pesquisar").safeParse({ q: "Macatuba", limit: 101 }).success).toBe(false);
     expect(schema("sos.listar").safeParse({ page: 2, limit: 50, notificacaoAceita: true }).success).toBe(true);
+    expect(schema("servicos.listar").safeParse({ page: 1, limit: 100 }).success).toBe(true);
   });
 
   it("preserves optional map listing filters and requires at least one filter when filtering", () => {
@@ -114,7 +115,7 @@ describe("public MCP tools", () => {
     expect(find("jornal.listar")?.appUri).toBe("ui://centralmacatuba/jornal");
     expect(find("informacoes.listar")?.appUri).toBe("ui://centralmacatuba/informacoes");
     expect(find("servicos.listar")?.appUri).toBe("ui://centralmacatuba/servicos");
-    expect(find("servicos_cursos.verificar")?.appUri).toBe("ui://centralmacatuba/cursos");
+    expect(find("servicos_cursos.verificar")?.appUri).toBe("ui://centralmacatuba/servicos/cursos");
     expect(find("sos.listar")?.appUri).toBe("ui://centralmacatuba/sos");
     expect(find("avisos.verificar")?.appUri).toBe("ui://centralmacatuba/novidades");
     expect(find("calendario.verificar")?.appUri).toBe("ui://centralmacatuba/calendario");
