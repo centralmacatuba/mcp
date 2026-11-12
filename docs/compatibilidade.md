@@ -15,23 +15,23 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `dominios.verificar` | `dominios.verificar()` | Somente dados públicos |
 | `informacoes.listar` | `informacoes.verificar({ funcao: "tudo" })` | Parâmetro de função fixado pelo servidor |
 | `informacoes.obter` | `informacoes.verificar({ funcao: "uma", ... })` | Exige id ou nome |
-| `informacoes.pesquisar` | `informacoes.pesquisar()` | Exige o termo `p` |
+| `informacoes.pesquisar` | `informacoes.pesquisar()` | Termo `p` e filtro opcionais; aceita paginação |
 | `jornal.listar` | `jornal.verificar({ funcao: "todas" })` | Parâmetro de função fixado pelo servidor |
 | `jornal.obter` | `jornal.verificar({ funcao: "uma", id })` | Exige id positivo |
 | `jornal.pesquisar` | `jornal.pesquisar()` | Exige `q`; filtro opcional |
 | `links.pesquisar` | `links.pesquisar()` | Termo opcional |
-| `links.verificar` | `links.verificar()` | Lista links ativos ou obtém um link por id; exige id quando `funcao=uma`. A função `pendentes` é deliberadamente excluída por poder retornar dados operacionais. |
+| `links.verificar` | `links.verificar()` | Consulta links ativos, um link por id ou solicitações pendentes conforme `funcao`; exige id quando `funcao=uma`. |
 | `mapa.listar` | `mapa.verificar()` | Lista pontos; aceita filtros opcionais |
 | `mapa.filtrar` | `mapa.verificar()` | Exige pelo menos um filtro |
-| `mapa.pesquisar` | `mapa.pesquisar()` | Exige `q`; filtro opcional |
+| `mapa.pesquisar` | `mapa.pesquisar()` | Aceita `q` opcional ou os quatro limites geográficos; `zoom` controla o limite padrão quando `limit` é omitido. |
 | `novidades.pesquisar` | `novidades.pesquisar()` | Termo opcional, até 200 caracteres |
 | `novidades.verificar` | `novidades.verificar()` | Exige id quando `funcao=uma`. |
 | `paginas.pesquisar` | `paginas.pesquisar()` | Pesquisa pública |
 | `paginas.verificar` | `paginas.verificar({ id })` | No MCP, exige id explícito |
 | `redicionador.verificar` | `redicionador.verificar()` | Exige slug no parâmetro `url` |
-| `servicos.listar` | `servicos.verificar({ funcao: "tudo" })` | Parâmetro de função fixado pelo servidor |
+| `servicos.listar` | `GET /api/servicos/pesquisar` | Lista o catálogo pelo novo endpoint de pesquisa, sem termo `q`, com paginação. |
 | `servicos.obter` | `servicos.verificar({ funcao: "uma", ... })` | Exige id ou nome |
-| `servicos.pesquisar` | `GET /api/servicos/pesquisar` | Pesquisa geral do catálogo por `q` e `campo`, com paginação; não usa mais `funcao=pesquisar` em `/api/servicos/verificar`. |
+| `servicos.pesquisar` | `GET /api/servicos/pesquisar` | Pesquisa o catálogo por `q` e `campo`, com paginação. |
 | `servicos_cursos.pesquisar` | `servicos.cursos.pesquisar()` | Filtros opcionais |
 | `servicos_cursos.verificar` | `servicos.cursos.verificar()` | Categoria ou slug opcionais |
 | `servicos_docs.pesquisar` | `servicos.docs.pesquisar()` | Filtros opcionais |
@@ -53,14 +53,14 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `ui://centralmacatuba/mapa` | `mapa.listar` |
 | `ui://centralmacatuba/jornal` | `jornal.listar` |
 | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
-| `ui://centralmacatuba/servicos/cursos` | `servicos_cursos.verificar` |
+| `ui://centralmacatuba/servicos/cursos` | `servicos_cursos.pesquisar`, `servicos_cursos.verificar` |
 | `ui://centralmacatuba/sos` | `sos.listar` |
 
-As sete interfaces são empacotadas como HTML autocontido durante o build. Seus scripts usam o pacote oficial de MCP Apps incluído nas dependências do servidor, sem carregar bibliotecas de terceiros por CDN em tempo de execução.
+As doze interfaces são empacotadas como HTML autocontido durante o build. Seus scripts usam o pacote oficial de MCP Apps incluído nas dependências do servidor, sem carregar bibliotecas de terceiros por CDN em tempo de execução.
 
 ## Paginação
 
-As ferramentas de listagem e pesquisa que possuem suporte no OpenAPI aceitam `page` (base 1) e `limit` (de 1 a 100). O padrão da API é página 1 e 20 itens por página. Isso inclui calendário, informações, jornal, links, mapa, novidades, páginas, catálogo de serviços, cursos, documentação, jogos, streaming, SOS e tempo. Ferramentas de consulta individual não expõem paginação quando ela não tem efeito semântico.
+As ferramentas de listagem e pesquisa que possuem suporte no OpenAPI aceitam `page` (base 1) e `limit` (de 1 a 100). O padrão da API é página 1 e 20 itens por página. Isso inclui calendário, informações, jornal, links (pesquisa), mapa, novidades, páginas, catálogo de serviços, cursos, documentação, jogos, streaming, SOS e tempo. A consulta de pontos no mapa preserva o limite padrão dinâmico por zoom quando `limit` não é informado. Ferramentas de consulta individual não expõem paginação quando ela não tem efeito semântico.
 
 ## Compatibilidade de argumentos
 
@@ -68,11 +68,11 @@ Os nomes das ferramentas e os argumentos são mantidos no nível superior, sempr
 
 As ferramentas de lista que historicamente aceitavam filtros continuam aceitando-os. `mapa.listar` aceita `tipo`, `criador` e `verificado` como filtros opcionais; `mapa.filtrar` exige pelo menos um desses filtros não vazio.
 
-A ferramenta `mapa.pesquisar` segue o contrato atualizado: `q` é opcional (quando informado, não pode ser vazio), aceita limites geográficos `min_lat`, `min_lng`, `max_lat`, `max_lng`, nível `zoom` e paginação. A consulta de Tempo valida `source` em até 50 caracteres e datas em `AAAA-MM-DD` ou `AAAA-MM-DD HH:MM:SS`.
+A ferramenta `mapa.pesquisar` segue o contrato atualizado: `q` é opcional (quando informado, não pode ser vazio); sem `q`, exige os quatro limites geográficos `min_lat`, `min_lng`, `max_lat`, `max_lng`. Aceita nível `zoom` e paginação; quando `limit` é omitido, o tamanho da página depende do zoom. A consulta de Tempo valida `source` em até 50 caracteres e datas em `AAAA-MM-DD` ou `AAAA-MM-DD HH:MM:SS`.
 
 A ferramenta `paginas.verificar` requer um id explícito no servidor MCP. O contexto HTTP de um cliente MCP não é o mesmo contexto de Host/path de um navegador, portanto o servidor não tenta inferir a página atual do cliente.
 
-A ferramenta `links.verificar` não disponibiliza `funcao=pendentes`: a documentação do contrato público alerta que essa consulta pode conter dados operacionais, portanto ela não é apropriada para exposição irrestrita via MCP. A função `uma` exige um id.
+A ferramenta `links.verificar` acompanha o enum público `funcao=tudo|uma|pendentes`; a função `uma` exige um id. A consulta de pendentes é encaminhada somente pela rota pública documentada no OpenAPI.
 
 As funções `uma` de `novidades.verificar` e `servicos_streaming.verificar` também exigem id explícito.
 
