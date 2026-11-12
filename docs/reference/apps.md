@@ -9,7 +9,7 @@ As interfaces são recursos UI associados às ferramentas correspondentes. São 
 | Mapa | `ui://centralmacatuba/mapa` | `mapa.listar` |
 | Jornal | `ui://centralmacatuba/jornal` | `jornal.listar` |
 | Informações | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
-| Cursos | `ui://centralmacatuba/cursos` | `servicos_cursos.verificar` |
+| Cursos | `ui://centralmacatuba/servicos/cursos` | `servicos_cursos.pesquisar`, `servicos_cursos.verificar` |
 | SOS | `ui://centralmacatuba/sos` | `sos.listar` |
 | Calendário | `ui://centralmacatuba/calendario` | `calendario.gerar`, `calendario.verificar` |
 | Novidades | `ui://centralmacatuba/novidades` | `novidades.pesquisar`, `novidades.verificar`, `avisos.verificar` |
@@ -17,7 +17,7 @@ As interfaces são recursos UI associados às ferramentas correspondentes. São 
 | Jogos - Serviços Macatuba | `ui://centralmacatuba/servicos/jogos` | `servicos_jogos.pesquisar`, `servicos_jogos.verificar` |
 | Streaming - Serviços Macatuba | `ui://centralmacatuba/servicos/streaming` | `servicos_streaming.pesquisar`, `servicos_streaming.verificar`, `servicos_streaming.live_verificar` |
 
-## Compatibilidade
+## Paginação e consentimento\n\nAs interfaces de catálogo permitem navegar por `page` e `limit` quando a ferramenta associada oferece paginação. A interface SOS só envia a preferência `X-CM-SOS-PERMISSION: granted` quando o usuário marca explicitamente a opção de consentimento.\n\n## Compatibilidade
 
 Clientes que implementam MCP Apps podem renderizar a interface interativa. Clientes sem suporte a Apps continuam podendo utilizar as ferramentas e receber seus conteúdos textuais/estruturados.
 
