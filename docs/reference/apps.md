@@ -5,7 +5,7 @@ As interfaces são recursos UI associados às ferramentas correspondentes. São 
 | Interface | URI do recurso | Ferramenta associada |
 | --- | --- | --- |
 | Tempo | `ui://centralmacatuba/tempo` | `tempo.listar` |
-| Serviços | `ui://centralmacatuba/servicos` | `servicos.listar` |
+| Serviços | `ui://centralmacatuba/servicos` | `servicos.listar`, `servicos.pesquisar` |
 | Mapa | `ui://centralmacatuba/mapa` | `mapa.listar` |
 | Jornal | `ui://centralmacatuba/jornal` | `jornal.listar` |
 | Informações | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
