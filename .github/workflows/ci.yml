@@ -85,9 +85,9 @@ jobs:
           import fs from "node:fs";
 
           const apps = [
-  "tempo", "servicos", "mapa", "jornal", "informacoes", "sos", "calendario", "novidades",
-  "servicos/cursos", "servicos/docs", "servicos/jogos", "servicos/streaming"
-];
+          "tempo", "servicos", "mapa", "jornal", "informacoes", "sos", "calendario", "novidades",
+          "servicos/cursos", "servicos/docs", "servicos/jogos", "servicos/streaming"
+          ];
           const failures = [];
 
           for (const app of apps) {
