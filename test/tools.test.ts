@@ -127,6 +127,7 @@ describe("public MCP tools", () => {
     expect(find("jornal.listar")?.appUri).toBe("ui://centralmacatuba/jornal");
     expect(find("informacoes.listar")?.appUri).toBe("ui://centralmacatuba/informacoes");
     expect(find("servicos.listar")?.appUri).toBe("ui://centralmacatuba/servicos");
+    expect(find("servicos.pesquisar")?.appUri).toBe("ui://centralmacatuba/servicos");
     expect(find("servicos_cursos.verificar")?.appUri).toBe("ui://centralmacatuba/servicos/cursos");
     expect(find("servicos_cursos.pesquisar")?.appUri).toBe("ui://centralmacatuba/servicos/cursos");
     expect(find("sos.listar")?.appUri).toBe("ui://centralmacatuba/sos");
