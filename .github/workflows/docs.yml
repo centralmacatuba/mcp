@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: centralmacatuba/api-sdk
-          ref: 4698c8b29f6126cf2d454ac557a27357e05fd5e3
+          ref: b5f0debfb96c2d8f9b2376001254b43634cafc83
           path: api-sdk
           persist-credentials: false
 
