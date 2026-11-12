@@ -106,7 +106,6 @@ describe("public MCP tools", () => {
     expect(schema("links.verificar").safeParse({ funcao: "uma", id: 4 }).success).toBe(true);
     expect(schema("links.verificar").safeParse({ funcao: "pendentes" }).success).toBe(true);
     expect(schema("links.verificar").safeParse({ funcao: "uma" }).success).toBe(false);
-    expect(schema("links.verificar").safeParse({ funcao: "pendentes" }).success).toBe(false);
     expect(schema("novidades.verificar").safeParse({ funcao: "uma", id: 4 }).success).toBe(true);
     expect(schema("novidades.verificar").safeParse({ funcao: "uma" }).success).toBe(false);
     expect(schema("servicos_streaming.verificar").safeParse({ tipo: "radio", funcao: "uma", id: 4 }).success).toBe(true);
@@ -129,6 +128,7 @@ describe("public MCP tools", () => {
     expect(find("informacoes.listar")?.appUri).toBe("ui://centralmacatuba/informacoes");
     expect(find("servicos.listar")?.appUri).toBe("ui://centralmacatuba/servicos");
     expect(find("servicos_cursos.verificar")?.appUri).toBe("ui://centralmacatuba/servicos/cursos");
+    expect(find("servicos_cursos.pesquisar")?.appUri).toBe("ui://centralmacatuba/servicos/cursos");
     expect(find("sos.listar")?.appUri).toBe("ui://centralmacatuba/sos");
     expect(find("avisos.verificar")?.appUri).toBe("ui://centralmacatuba/novidades");
     expect(find("calendario.verificar")?.appUri).toBe("ui://centralmacatuba/calendario");
