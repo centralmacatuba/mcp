@@ -203,11 +203,11 @@ describe("API tool handler integration", () => {
     const calls: Array<{ endpoint: PublicEndpoint; query?: Record<string, unknown> }> = [];
     const api = {
       marker: "sdk-instance-context",
-      async request(this: { marker: string }, endpoint: PublicEndpoint, query?: Record<string, unknown>) {
+      async requestWithMetadata(this: { marker: string }, endpoint: PublicEndpoint, query?: Record<string, unknown>) {
         expect(this.marker).toBe("sdk-instance-context");
         if (!query) throw new Error("Expected tool query arguments.");
         calls.push({ endpoint, query });
-        return { success: true, endpoint };
+        return { data: { success: true, endpoint }, headers: new Headers() };
       }
     } as unknown as CentralMacatubaSDK;
 
@@ -235,9 +235,9 @@ describe("API tool handler integration", () => {
     } as unknown as McpServer;
     const calls: Array<{ endpoint: PublicEndpoint; query?: Record<string, unknown>; options?: { headers?: HeadersInit } }> = [];
     const api = {
-      async request(endpoint: PublicEndpoint, query?: Record<string, unknown>, options?: { headers?: HeadersInit }) {
+      async requestWithMetadata(endpoint: PublicEndpoint, query?: Record<string, unknown>, options?: { headers?: HeadersInit }) {
         calls.push({ endpoint, ...(query !== undefined ? { query } : {}), ...(options !== undefined ? { options } : {}) });
-        return { success: true };
+        return { data: { success: true }, headers: new Headers() };
       }
     } as unknown as CentralMacatubaSDK;
     registerApiTools(fakeServer, api);
