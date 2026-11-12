@@ -32,13 +32,13 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `servicos.listar` | `GET /api/servicos/pesquisar` | Lista o catálogo pelo novo endpoint de pesquisa, sem termo `q`, com paginação. |
 | `servicos.obter` | `servicos.verificar({ funcao: "uma", ... })` | Exige id ou nome |
 | `servicos.pesquisar` | `GET /api/servicos/pesquisar` | Pesquisa o catálogo por `q` e `campo`, com paginação. |
-| `servicos_cursos.pesquisar` | `servicos.cursos.pesquisar()` | Filtros opcionais |
+| `servicos_cursos.pesquisar` | `servicos.cursos.pesquisar()` | Filtros opcionais e paginação |
 | `servicos_cursos.verificar` | `servicos.cursos.verificar()` | Categoria ou slug opcionais |
-| `servicos_docs.pesquisar` | `servicos.docs.pesquisar()` | Filtros opcionais |
+| `servicos_docs.pesquisar` | `servicos.docs.pesquisar()` | Filtros opcionais e paginação |
 | `servicos_docs.verificar` | `servicos.docs.verificar()` | Exige slug |
-| `servicos_jogos.pesquisar` | `servicos.jogos.pesquisar()` | Termo e campo opcionais |
+| `servicos_jogos.pesquisar` | `servicos.jogos.pesquisar()` | Termo e campo opcionais; aceita paginação |
 | `servicos_jogos.verificar` | `servicos.jogos.verificar()` | Exige ao menos um identificador: id, nome ou slug. |
-| `servicos_streaming.pesquisar` | `servicos.streaming.pesquisar()` | Exige tipo válido |
+| `servicos_streaming.pesquisar` | `servicos.streaming.pesquisar()` | Exige tipo válido; filtro validado conforme a categoria e aceita paginação |
 | `servicos_streaming.verificar` | `servicos.streaming.verificar()` | Exige tipo válido e id quando `funcao=uma`. |
 | `servicos_streaming.live_verificar` | `servicos.streaming.live.verificar()` | Consulta transmissões ao vivo e agendadas |
 | `sos.listar` | `GET /api/sos/listar_alertas` | Consulta alertas; quando `notificacaoAceita=true`, envia `X-CM-SOS-PERMISSION: granted` como cabeçalho HTTP; nunca usa cookie. |
@@ -54,7 +54,7 @@ A regra de implementação é simples: cada ferramenta só pode chamar operaçõ
 | `ui://centralmacatuba/jornal` | `jornal.listar` |
 | `ui://centralmacatuba/informacoes` | `informacoes.listar` |
 | `ui://centralmacatuba/servicos/cursos` | `servicos_cursos.pesquisar`, `servicos_cursos.verificar` |
-| `ui://centralmacatuba/sos` | `sos.listar` |
+| `ui://centralmacatuba/sos` | `sos.listar` |\n| `ui://centralmacatuba/calendario` | `calendario.gerar`, `calendario.verificar` |\n| `ui://centralmacatuba/novidades` | `novidades.pesquisar`, `novidades.verificar`, `avisos.verificar` |\n| `ui://centralmacatuba/servicos/docs` | `servicos_docs.pesquisar`, `servicos_docs.verificar` |\n| `ui://centralmacatuba/servicos/jogos` | `servicos_jogos.pesquisar`, `servicos_jogos.verificar` |\n| `ui://centralmacatuba/servicos/streaming` | `servicos_streaming.pesquisar`, `servicos_streaming.verificar`, `servicos_streaming.live_verificar` |
 
 As doze interfaces são empacotadas como HTML autocontido durante o build. Seus scripts usam o pacote oficial de MCP Apps incluído nas dependências do servidor, sem carregar bibliotecas de terceiros por CDN em tempo de execução.
 
@@ -64,7 +64,7 @@ As ferramentas de listagem e pesquisa que possuem suporte no OpenAPI aceitam `pa
 
 ## Compatibilidade de argumentos
 
-Os nomes das ferramentas e os argumentos são mantidos no nível superior, sempre que compatíveis com a operação pública. Os schemas Zod validam os campos antes de chamar o SDK. Campos fixos como `funcao=tudo`, `funcao=uma` e `funcao=pesquisar` são definidos pelo servidor, não pelo cliente, para que a ferramenta mantenha o significado anunciado.
+Os nomes das ferramentas e os argumentos são mantidos no nível superior, sempre que compatíveis com a operação pública. Os schemas Zod validam os campos antes de chamar o SDK. Campos fixos como `funcao=tudo` e `funcao=uma` são definidos pelo servidor, não pelo cliente, para que a ferramenta mantenha o significado anunciado.
 
 As ferramentas de lista que historicamente aceitavam filtros continuam aceitando-os. `mapa.listar` aceita `tipo`, `criador` e `verificado` como filtros opcionais; `mapa.filtrar` exige pelo menos um desses filtros não vazio.
 
