@@ -226,6 +226,49 @@ describe("API tool handler integration", () => {
     });
   });
 
+  it("forwards API pagination headers into structured tool results", async () => {
+    const handlers = new Map<string, (args: unknown) => Promise<unknown>>();
+    const fakeServer = {
+      registerTool(name: string, _config: unknown, handler: (args: unknown) => Promise<unknown>) {
+        handlers.set(name, handler);
+      }
+    } as unknown as McpServer;
+    const api = {
+      async requestWithMetadata() {
+        return {
+          data: { data: [{ id: 1 }, { id: 2 }] },
+          headers: new Headers({
+            "X-Page": "2",
+            "X-Per-Page": "2",
+            "X-Total-Count": "5",
+            "X-Total-Pages": "3",
+            "X-Has-Next-Page": "true",
+            "X-Has-Previous-Page": "true"
+          })
+        };
+      }
+    } as unknown as CentralMacatubaSDK;
+    registerApiTools(fakeServer, api);
+    const handler = handlers.get("jornal.listar");
+    expect(handler).toBeDefined();
+
+    const result = await handler!({ page: 2, limit: 2 });
+    expect(result).toMatchObject({
+      structuredContent: {
+        pagination: {
+          page: 2,
+          limit: 2,
+          total: 5,
+          totalPages: 3,
+          hasNextPage: true,
+          hasPreviousPage: true
+        }
+      }
+    });
+    const textResult = JSON.parse((result as { content: Array<{ text: string }> }).content[0]!.text);
+    expect(textResult.pagination.totalPages).toBe(3);
+  });
+
   it("sends the SOS permission header only after explicit consent", async () => {
     const handlers = new Map<string, (args: unknown) => Promise<unknown>>();
     const fakeServer = {
