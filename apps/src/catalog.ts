@@ -73,7 +73,7 @@ if (root && supportsSosConsent) {
   consentInput.id = "sos-notification-consent";
   consentInput.style.cssText = "margin-top:4px";
   const consentText = document.createElement("span");
-  consentText.textContent = "Confirmo que o usuário declarou aceitar a preferência de notificações SOS. Isso apenas informa a preferência nesta consulta; não realiza inscrição.";
+  consentText.textContent = "Aceito receber notificações SOS. Esta opção apenas informa minha preferência nesta consulta; não realiza inscrição.";
   consentLabel.append(consentInput, consentText);
   if (status) root.insertBefore(consentLabel, status);
   else if (button) root.insertBefore(consentLabel, button);
