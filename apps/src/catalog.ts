@@ -10,7 +10,7 @@ const button = document.querySelector<HTMLButtonElement>("#load");
 const app = new App({ name: appName, version: "1.1.0" });
 
 const paginatedTools = new Set([
-  "tempo.listar", "servicos.listar", "mapa.listar",
+  "tempo.listar", "servicos.listar", "servicos.pesquisar", "mapa.listar",
   "jornal.listar", "informacoes.listar", "servicos_cursos.pesquisar", "sos.listar"
 ]);
 const supportsPagination = paginatedTools.has(toolName);
