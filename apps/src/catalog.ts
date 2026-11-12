@@ -11,11 +11,12 @@ const app = new App({ name: appName, version: "1.1.0" });
 
 const paginatedTools = new Set([
   "tempo.listar", "servicos.listar", "mapa.listar",
-  "jornal.listar", "informacoes.listar", "sos.listar"
+  "jornal.listar", "informacoes.listar", "servicos_cursos.pesquisar", "sos.listar"
 ]);
 const supportsPagination = paginatedTools.has(toolName);
 const supportsSosConsent = toolName === "sos.listar";
 
+let paginationControls: HTMLElement | undefined;
 let pageInput: HTMLInputElement | undefined;
 let limitInput: HTMLInputElement | undefined;
 let pageInfo: HTMLElement | undefined;
@@ -25,6 +26,7 @@ let consentInput: HTMLInputElement | undefined;
 
 if (root && supportsPagination) {
   const controls = document.createElement("div");
+  paginationControls = controls;
   controls.className = "pagination";
   controls.setAttribute("aria-label", "Paginação");
   controls.style.cssText = "display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:16px 0";
@@ -195,6 +197,7 @@ function render(response: unknown): void {
 async function runTool(): Promise<void> {
   if (!toolName || !button) return;
   button.disabled = true;
+  if (paginationControls) paginationControls.hidden = false;
   if (previousButton) previousButton.disabled = true;
   if (nextButton) nextButton.disabled = true;
   setStatus("Consultando dados…");
@@ -218,6 +221,27 @@ async function runTool(): Promise<void> {
     button.disabled = false;
   }
 }
+
+const verifyButton = document.querySelector<HTMLButtonElement>("#verify");
+const verifySlug = document.querySelector<HTMLInputElement>("#slug");
+verifyButton?.addEventListener("click", async () => {
+  const slug = verifySlug?.value.trim();
+  if (!slug) {
+    setStatus("Informe o slug do curso para consultar.", "error");
+    return;
+  }
+  verifyButton.disabled = true;
+  if (paginationControls) paginationControls.hidden = true;
+  setStatus("Consultando curso por slug…");
+  results?.replaceChildren();
+  try {
+    render(await app.callServerTool({ name: "servicos_cursos.verificar", arguments: { slug } }));
+  } catch {
+    setStatus("Não foi possível consultar o curso. Verifique o slug e tente novamente.", "error");
+  } finally {
+    verifyButton.disabled = false;
+  }
+});
 
 previousButton?.addEventListener("click", () => {
   if (!pageInput) return;
