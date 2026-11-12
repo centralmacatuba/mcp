@@ -182,7 +182,7 @@ function render(response: unknown): void {
     ? structured.result
     : structured;
   const collection = payload && typeof payload === "object" && !Array.isArray(payload)
-    ? ["data", "itens", "eventos", "alertas", "registros", "items", "results"].map((key) => payload[key]).find(Array.isArray) ?? payload
+    ? ["data", "dados", "itens", "eventos", "alertas", "registros", "noticias", "pontos", "informacoes", "items", "results"].map((key) => payload[key]).find(Array.isArray) ?? payload
     : payload;
   results.replaceChildren(renderValue(collection));
   if (raw) raw.textContent = JSON.stringify(structured, null, 2) ?? String(structured);
