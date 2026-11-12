@@ -39,7 +39,7 @@ const searchJournal = queryInput(z.object({
 }));
 const journalById = queryInput(z.object({ id: positiveId }));
 const searchMap = queryInput(z.object({
-  q: text.optional(),
+  q: text.min(1).optional(),
   filtro: z.enum(["nome", "tipo", "criador", "descricao", "tudo"]).optional(),
   min_lat: z.number().min(-90).max(90).optional(),
   min_lng: z.number().min(-180).max(180).optional(),
@@ -156,7 +156,12 @@ const tools: ToolDefinition[] = [
   { name: "servicos_streaming.verificar", appUri: "ui://centralmacatuba/servicos/streaming", title: "Verificar streaming", description: "Consulta streaming. tipo é obrigatório e aceita radio, tv, vod, camera ou podcast.", endpoint: "/api/servicos/streaming/verificar", inputSchema: verifyStreaming },
   { name: "servicos_streaming.live_verificar", appUri: "ui://centralmacatuba/servicos/streaming", title: "Verificar streaming ao vivo", description: "Consulta o estado público do serviço de streaming ao vivo.", endpoint: "/api/servicos/streaming/live/verificar", inputSchema: queryInput(z.object({ funcao: text.optional() })) },
   { name: "sos.listar", appUri: "ui://centralmacatuba/sos", title: "Consultar alertas SOS", description: "Lista alertas públicos. Defina notificacaoAceita=true somente quando o usuário já tiver concedido a permissão; isso envia X-CM-SOS-PERMISSION: granted. O MCP não solicita permissão nem usa cookies.", endpoint: "/api/sos/listar_alertas", inputSchema: queryInput(z.object({ ...pagination, notificacaoAceita: z.boolean().optional() })), requestHeaders: (args) => args.notificacaoAceita === true ? { "X-CM-SOS-PERMISSION": "granted" } : undefined },
-  { name: "tempo.listar", appUri: "ui://centralmacatuba/tempo", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas. source, start e end são parâmetros opcionais aceitos pelo serviço.", endpoint: "/api/tempo/verificar", inputSchema: queryInput(z.object({ source: text.optional(), start: text.optional(), end: text.optional(), ...pagination })) }
+  { name: "tempo.listar", appUri: "ui://centralmacatuba/tempo", title: "Consultar Tempo Macatuba", description: "Consulta informações meteorológicas. source, start e end são parâmetros opcionais aceitos pelo serviço.", endpoint: "/api/tempo/verificar", inputSchema: queryInput(z.object({
+    source: text.max(50).optional(),
+    start: text.regex(/^\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?$/).optional(),
+    end: text.regex(/^\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?$/).optional(),
+    ...pagination
+  })) }
 ];
 
 

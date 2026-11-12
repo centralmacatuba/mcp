@@ -68,6 +68,8 @@ Os nomes das ferramentas e os argumentos são mantidos no nível superior, sempr
 
 As ferramentas de lista que historicamente aceitavam filtros continuam aceitando-os. `mapa.listar` aceita `tipo`, `criador` e `verificado` como filtros opcionais; `mapa.filtrar` exige pelo menos um desses filtros não vazio.
 
+A ferramenta `mapa.pesquisar` segue o contrato atualizado: `q` é opcional (quando informado, não pode ser vazio), aceita limites geográficos `min_lat`, `min_lng`, `max_lat`, `max_lng`, nível `zoom` e paginação. A consulta de Tempo valida `source` em até 50 caracteres e datas em `AAAA-MM-DD` ou `AAAA-MM-DD HH:MM:SS`.
+
 A ferramenta `paginas.verificar` requer um id explícito no servidor MCP. O contexto HTTP de um cliente MCP não é o mesmo contexto de Host/path de um navegador, portanto o servidor não tenta inferir a página atual do cliente.
 
 A ferramenta `links.verificar` não disponibiliza `funcao=pendentes`: a documentação do contrato público alerta que essa consulta pode conter dados operacionais, portanto ela não é apropriada para exposição irrestrita via MCP. A função `uma` exige um id.

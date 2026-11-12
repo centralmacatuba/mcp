@@ -53,6 +53,10 @@ describe("public MCP tools", () => {
 
     expect(schema("informacoes.pesquisar").safeParse({ p: "saúde" }).success).toBe(true);
     expect(schema("informacoes.pesquisar").safeParse({}).success).toBe(true);
+    expect(schema("mapa.pesquisar").safeParse({}).success).toBe(true);
+    expect(schema("mapa.pesquisar").safeParse({ q: "" }).success).toBe(false);
+    expect(schema("mapa.pesquisar").safeParse({ min_lat: -90, min_lng: -180, max_lat: 90, max_lng: 180, zoom: 22, page: 1, limit: 100 }).success).toBe(true);
+    expect(schema("mapa.pesquisar").safeParse({ zoom: 23 }).success).toBe(false);
 
     expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "radio" }).success).toBe(true);
     expect(schema("servicos_streaming.pesquisar").safeParse({ tipo: "music" }).success).toBe(false);
@@ -70,6 +74,9 @@ describe("public MCP tools", () => {
     expect(schema("servicos.pesquisar").safeParse({ q: "Macatuba", limit: 101 }).success).toBe(false);
     expect(schema("sos.listar").safeParse({ page: 2, limit: 50, notificacaoAceita: true }).success).toBe(true);
     expect(schema("servicos.listar").safeParse({ page: 1, limit: 100 }).success).toBe(true);
+    expect(schema("tempo.listar").safeParse({ source: "observatorio", start: "2026-11-12 10:00:00", end: "2026-11-12", page: 1, limit: 100 }).success).toBe(true);
+    expect(schema("tempo.listar").safeParse({ source: "x".repeat(51) }).success).toBe(false);
+    expect(schema("tempo.listar").safeParse({ start: "12/11/2026" }).success).toBe(false);
   });
 
   it("preserves optional map listing filters and requires at least one filter when filtering", () => {
