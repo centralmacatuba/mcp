@@ -76,6 +76,8 @@ As ferramentas iniciais são somente leitura e mapeiam para endpoints presentes 
 
 Os argumentos das ferramentas são recebidos no nível superior, preservando os contratos legados quando há equivalência. Os schemas acompanham o contrato público OpenAPI 1.1.2, incluindo paginação `page`/`limit`, o endpoint específico de pesquisa do catálogo de serviços e o cabeçalho HTTP de autorização SOS. Campos de texto são limitados a 2.048 caracteres e respostas MCP a 100.000 caracteres. O servidor não aceita caminhos arbitrários nem nomes de endpoint fornecidos pelo cliente.
 
+Os cabeçalhos HTTP de paginação também são preservados em `structuredContent.pagination` por meio de `requestWithMetadata()` do SDK. O método `request()` mantém seu retorno original, apenas com os dados.
+
 Consulte [configuração de clientes](docs/clientes.md) para exemplos de conexão via STDIO e Streamable HTTP.
 
 ## MCP Apps
