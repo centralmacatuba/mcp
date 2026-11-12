@@ -26,7 +26,7 @@ pnpm build
 | `src/http.ts` | Inicialização Streamable HTTP e controles de origem/host |
 | `src/config.ts` | Leitura e validação da configuração |
 | `src/cli.ts` | Interface de linha de comando |
-| `apps/` | Fontes das sete interfaces HTML |
+| `apps/` | Fontes das doze interfaces HTML |
 | `test/` | Testes automatizados |
 
 ## Regras de contribuição
