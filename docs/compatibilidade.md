@@ -67,6 +67,8 @@ As doze interfaces são empacotadas como HTML autocontido durante o build. Seus 
 
 As ferramentas de listagem e pesquisa que possuem suporte no OpenAPI aceitam `page` (base 1) e `limit` (de 1 a 100). O padrão da API é página 1 e 20 itens por página. Isso inclui calendário, informações, jornal, links (pesquisa), mapa, novidades, páginas, catálogo de serviços, cursos, documentação, jogos, streaming, SOS e tempo. A consulta de pontos no mapa preserva o limite padrão dinâmico por zoom quando `limit` não é informado. Ferramentas de consulta individual não expõem paginação quando ela não tem efeito semântico.
 
+O handler MCP usa `requestWithMetadata()` do SDK para preservar os cabeçalhos HTTP de paginação em `structuredContent.pagination` e no conteúdo textual da resposta. Quando presentes, são expostos `page`, `limit`, `total`, `totalPages`, `hasNextPage` e `hasPreviousPage`; assim, os Apps podem habilitar/desabilitar a navegação com base no estado real da API.
+
 ## Compatibilidade de argumentos
 
 Os nomes das ferramentas e os argumentos são mantidos no nível superior, sempre que compatíveis com a operação pública. Os schemas Zod validam os campos antes de chamar o SDK. Campos fixos como `funcao=tudo` e `funcao=uma` são definidos pelo servidor, não pelo cliente, para que a ferramenta mantenha o significado anunciado.
