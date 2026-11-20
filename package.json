@@ -92,5 +92,6 @@
     "@changesets/cli": "^2.31.1",
     "vitepress": "1.6.4",
     "@modelcontextprotocol/client": "^2.4.0"
-  }
+  },
+  "mcpName": "io.qzz.centralmacatuba/central-macatuba-mcp"
 }
