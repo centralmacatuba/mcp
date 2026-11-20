@@ -1,0 +1,88 @@
+name: Publish MCP Registry
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Published npm package version (without or with a leading v)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mcp-registry-publish-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'centralmacatuba/mcp'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Resolve and validate release version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || '' }}
+          INPUT_VERSION: ${{ inputs.version || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_TAG:-$INPUT_VERSION}"
+          VERSION="${VERSION#v}"
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::A release tag or workflow_dispatch version is required."
+            exit 1
+          fi
+          node - "$VERSION" <<'NODE'
+          const fs = require("node:fs");
+          const version = process.argv[2];
+          const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+          const manifest = JSON.parse(fs.readFileSync("server.json", "utf8"));
+          if (pkg.name !== "@centralmacatuba/mcp") throw new Error("Unexpected npm package name.");
+          if (pkg.mcpName !== manifest.name) throw new Error("package.json mcpName does not match server.json name.");
+          if (pkg.version !== version) throw new Error(`Release version ${version} does not match package.json ${pkg.version}.`);
+          NODE
+          npm view "@centralmacatuba/mcp@$VERSION" version --registry=https://registry.npmjs.org/
+          jq --arg version "$VERSION" '.version = $version | .packages[0].version = $version' server.json > server.json.tmp
+          mv server.json.tmp server.json
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Install MCP Publisher
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+          OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+          curl --fail --location --silent --show-error \
+            "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_${OS}_${ARCH}.tar.gz" \
+            | tar xz mcp-publisher
+          chmod +x ./mcp-publisher
+
+      - name: Authenticate with verified DNS namespace
+        env:
+          MCP_DNS_PRIVATE_KEY: ${{ secrets.MCP_DNS_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$MCP_DNS_PRIVATE_KEY" =~ ^[0-9a-fA-F]{64}$ ]]; then
+            echo "::error::Configure MCP_DNS_PRIVATE_KEY as the 32-byte Ed25519 private seed in 64-character hexadecimal."
+            exit 1
+          fi
+          ./mcp-publisher login dns \
+            --domain centralmacatuba.qzz.io \
+            --private-key "$MCP_DNS_PRIVATE_KEY"
+
+      - name: Validate server manifest
+        run: ./mcp-publisher validate server.json
+
+      - name: Publish hybrid server entry
+        run: ./mcp-publisher publish server.json
