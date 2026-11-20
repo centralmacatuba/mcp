@@ -17,6 +17,7 @@ jobs:
     if: github.repository == 'centralmacatuba/mcp' && vars.NPM_RELEASE_ENABLED == 'true'
     permissions:
       contents: write
+      actions: write
       pull-requests: write
       id-token: write
       packages: write
