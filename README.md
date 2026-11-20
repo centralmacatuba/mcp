@@ -68,7 +68,7 @@ Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço
 
 ## Distribuição e MCP Registry
 
-O pacote local e o servidor remoto PHP são modalidades de distribuição do servidor Central Macatuba MCP e compartilham o identificador oficial `io.qzz.centralmacatuba/central-macatuba-mcp`. O arquivo [`server.json`](./server.json) descreve a distribuição híbrida: instalação npm via STDIO e conexão remota Streamable HTTP em `https://mcp.centralmacatuba.qzz.io/mcp`. O pacote declara o mesmo identificador em `mcpName` para comprovar a propriedade do pacote npm no MCP Registry.
+O pacote local e o servidor remoto PHP são modalidades de distribuição do servidor Central Macatuba MCP e compartilham o identificador oficial `io.qzz.centralmacatuba/mcp`. O arquivo [`server.json`](./server.json) descreve a distribuição híbrida: instalação npm via STDIO e conexão remota Streamable HTTP em `https://mcp.centralmacatuba.qzz.io/mcp`. O pacote declara o mesmo identificador em `mcpName` para comprovar a propriedade do pacote npm no MCP Registry.
 
 A publicação do registro é executada pelo workflow `Publish MCP Registry` após a publicação da versão no npm (ou manualmente por `workflow_dispatch`). Configure o secret `MCP_DNS_PRIVATE_KEY` com a chave privada Ed25519 em hexadecimal de 64 caracteres, correspondente ao TXT DNS já publicado para `centralmacatuba.qzz.io`, e a variável de repositório `MCP_REGISTRY_PUBLISH_ENABLED=true` para habilitar o disparo automático após um release npm. A chave privada nunca deve ser versionada. A publicação não expõe o código PHP privado. O workflow também pode ser executado manualmente informando uma versão que já exista no npm.
 
