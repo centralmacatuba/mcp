@@ -66,6 +66,14 @@ Endpoint local: `http://localhost:3000/mcp`.
 
 Em produção, configure `MCP_ALLOWED_HOSTS` com os hostnames exatos do serviço. O servidor usa somente as operações disponibilizadas pelo SDK público.
 
+## Distribuição e MCP Registry
+
+O pacote local e o servidor remoto PHP são modalidades de distribuição do servidor Central Macatuba MCP e compartilham o identificador oficial `io.qzz.centralmacatuba/central-macatuba-mcp`. O arquivo [`server.json`](./server.json) descreve a distribuição híbrida: instalação npm via STDIO e conexão remota Streamable HTTP em `https://mcp.centralmacatuba.qzz.io/mcp`. O pacote declara o mesmo identificador em `mcpName` para comprovar a propriedade do pacote npm no MCP Registry.
+
+A publicação do registro é executada pelo workflow `Publish MCP Registry` após a publicação da versão no npm (ou manualmente por `workflow_dispatch`). Configure o secret `MCP_DNS_PRIVATE_KEY` com a chave privada Ed25519 em hexadecimal de 64 caracteres, correspondente ao TXT DNS já publicado para `centralmacatuba.qzz.io`. A chave privada nunca deve ser versionada. A publicação não expõe o código PHP privado.
+
+As duas implementações mantêm ciclos internos de desenvolvimento próprios; o número de versão do registro acompanha a versão npm publicada, enquanto a versão informada pelo servidor remoto pode evoluir independentemente. Antes de cada release, mantenha os contratos MCP e as ferramentas compatíveis.
+
 ## Documentação
 
 A documentação completa está em [docs.mcp.centralmacatuba.qzz.io](https://docs.mcp.centralmacatuba.qzz.io/), com guias de instalação, configuração, transportes, desenvolvimento, referência de ferramentas e MCP Apps. Para executar localmente: `pnpm docs:dev`; para validar e gerar o site: `pnpm docs:test` e `pnpm docs:build`.
