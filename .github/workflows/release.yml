@@ -82,6 +82,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Dispatch MCP Registry publication
+        if: steps.changesets.outputs.published == 'true' && vars.MCP_REGISTRY_PUBLISH_ENABLED == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          gh workflow run publish-mcp-registry.yml --ref principal --field "version=$PACKAGE_VERSION"
+
       # Reconcile GitHub Packages on every successful run. This also recovers
       # when npm publishing succeeded but the GitHub Packages step previously failed.
       - name: Publish or reconcile GitHub Packages
