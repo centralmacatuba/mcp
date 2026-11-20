@@ -93,5 +93,5 @@
     "vitepress": "1.6.4",
     "@modelcontextprotocol/client": "^2.4.0"
   },
-  "mcpName": "io.qzz.centralmacatuba/central-macatuba-mcp"
+  "mcpName": "io.qzz.centralmacatuba/mcp"
 }
