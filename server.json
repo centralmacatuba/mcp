@@ -1,0 +1,28 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.qzz.centralmacatuba/mcp",
+  "title": "Central Macatuba MCP",
+  "description": "Official MCP server for Central Macatuba public digital services.",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/centralmacatuba/mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://docs.mcp.centralmacatuba.qzz.io/",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@centralmacatuba/mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.centralmacatuba.qzz.io/mcp"
+    }
+  ]
+}
